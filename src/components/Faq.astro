@@ -1,0 +1,52 @@
+---
+// Sık Sorulan Sorular — görsel akordeon + FAQPage JSON-LD (SEO).
+export interface FaqItem {
+  soru: string;
+  cevap: string;
+}
+interface Props {
+  items: FaqItem[];
+  baslik?: string;
+}
+const { items, baslik = 'Sık Sorulan Sorular' } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({
+    '@type': 'Question',
+    name: it.soru,
+    acceptedAnswer: { '@type': 'Answer', text: it.cevap },
+  })),
+};
+
+// set:html ile gömerken HTML-tehlikeli karakterleri kaçır. JSON.stringify bunları
+// kaçırmaz; veri ileride dış kaynaktan gelirse </script> enjeksiyonunu engeller.
+const jsonLdSafe = JSON.stringify(jsonLd)
+  .replace(/</g, '\\u003c')
+  .replace(/>/g, '\\u003e')
+  .replace(/&/g, '\\u0026');
+---
+
+<section aria-labelledby="sss-baslik" class="mt-16">
+  <h2 id="sss-baslik" class="text-2xl tracking-tight sm:text-3xl">{baslik}</h2>
+
+  <div class="mt-6 divide-y divide-ink-600/50 border-y border-ink-600/50">
+    {items.map((it) => (
+      <details class="group py-1">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-cream marker:hidden">
+          <span class="font-medium">{it.soru}</span>
+          <svg
+            class="h-5 w-5 flex-none text-gold-500 transition-transform duration-300 group-open:rotate-45"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </summary>
+        <p class="pb-4 pr-8 text-sm leading-relaxed text-mist">{it.cevap}</p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<script type="application/ld+json" set:html={jsonLdSafe} />

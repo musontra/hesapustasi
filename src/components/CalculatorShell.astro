@@ -1,0 +1,40 @@
+---
+// Her hesaplayıcı sayfasının ortak üst çerçevesi: geri bağlantı, başlık (tek H1),
+// açıklama ve "Son güncelleme" rozeti. İçerik <slot /> ile gelir.
+import { tufe } from '../data/oranlar';
+
+interface Props {
+  /** Sayfa H1 başlığı */
+  baslik: string;
+  /** H1 altındaki kısa tanıtım metni */
+  ozet: string;
+  /** "Son güncelleme" rozetini göster (oran kullanan araçlar için) */
+  guncellemeGoster?: boolean;
+}
+const { baslik, ozet, guncellemeGoster = false } = Astro.props;
+---
+
+<section class="container-x pt-12 sm:pt-16">
+  <a href="/" class="inline-flex min-h-[44px] items-center gap-1.5 text-sm text-muted transition hover:text-gold-300">
+    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+    Tüm araçlar
+  </a>
+
+  <div class="mt-6 max-w-2xl animate-fade-up">
+    <h1 class="text-balance text-4xl leading-[1.05] tracking-tightest sm:text-5xl">{baslik}</h1>
+    <p class="mt-4 text-lg leading-relaxed text-mist">{ozet}</p>
+
+    {guncellemeGoster && (
+      <p class="mt-5 inline-flex items-center gap-2 rounded-full border border-ink-600/70 bg-ink-800/50 px-3.5 py-1.5 text-xs text-muted">
+        <span class="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
+        Son güncelleme: {tufe.sonGuncelleme}
+      </p>
+    )}
+  </div>
+</section>
+
+<div class="container-x pb-8 pt-10">
+  <slot />
+</div>

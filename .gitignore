@@ -1,0 +1,34 @@
+# build output
+dist/
+.output/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# env
+.env
+.env.production
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# development artifacts
+dev.log
+dev-server.log
+screenshot-*.png
+screenshot.mjs
+.playwright-mcp/
+
+# claude code (yerel ayarlar paylaşılmaz; agents/ paylaşılır)
+.claude/settings.local.json
+
+# os / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json

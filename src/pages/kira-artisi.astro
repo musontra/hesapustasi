@@ -1,0 +1,391 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorShell from '../components/CalculatorShell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import Faq from '../components/Faq.astro';
+import type { FaqItem } from '../components/Faq.astro';
+import { tufe, tufeTablosu, yaklasanDonemler, guncelDonem } from '../data/oranlar';
+
+const sss: FaqItem[] = [
+  {
+    soru: 'Kira artış oranı nasıl belirlenir?',
+    cevap:
+      'Konut kiralarında yıllık artış, sözleşme yenileme döneminde bir önceki yılın 12 aylık TÜFE ortalamasını geçemez. Bu araç güncel TÜFE oranını esas alır; oranı dilerseniz elle de değiştirebilirsiniz.',
+  },
+  {
+    soru: 'Hangi TÜFE oranı kullanılıyor?',
+    cevap:
+      'Hesaplamada TÜİK tarafından açıklanan 12 aylık TÜFE ortalama artış oranı kullanılır. Oran her ay güncellenir; sayfanın üstündeki “Son güncelleme” bilgisinden hangi döneme ait olduğunu görebilirsiniz.',
+  },
+  {
+    soru: 'Sonuç yasal olarak bağlayıcı mı?',
+    cevap:
+      'Hayır. Bu araç yalnızca bilgilendirme amaçlıdır ve tahmini bir sonuç sunar. Kesin tutar için sözleşmenizi ve güncel mevzuatı esas alın, gerekirse bir uzmana danışın.',
+  },
+  {
+    soru: 'Sonucu nasıl paylaşırım?',
+    cevap:
+      'Sonuç kartının altındaki “Sonucu kopyala” düğmesiyle hesaplama özetini panoya alıp dilediğiniz yere yapıştırabilirsiniz.',
+  },
+];
+
+---
+
+<BaseLayout
+  title="Kira Artışı Hesaplama 2026 — Güncel TÜFE ile Yeni Kira"
+  description="Mevcut kiranızı ve güncel TÜFE oranını girin, yasal kira artışını ve yeni kira bedelini saniyeler içinde hesaplayın. Hızlı, sade ve ücretsiz."
+>
+  <CalculatorShell
+    baslik="Kira Artışı Hesaplama"
+    ozet="Mevcut kiranızı girin; güncel TÜFE oranına göre artış tutarını ve yeni kira bedelini anında görün."
+    guncellemeGoster={true}
+  >
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <!-- Giriş -->
+      <form id="kira-form" class="surface h-fit p-6 sm:p-7" novalidate>
+        <h2 class="text-xl tracking-tight">Bilgileri girin</h2>
+
+        <div class="mt-6 space-y-5">
+          <div>
+            <label for="mevcutKira" class="block text-sm font-medium text-mist">
+              Mevcut aylık kira (TL)
+            </label>
+            <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <span class="text-muted">₺</span>
+              <input
+                id="mevcutKira"
+                name="mevcutKira"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="any"
+                placeholder="Örn. 15000"
+                class="w-full rounded-md bg-transparent py-3 text-lg text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="donem" class="block text-sm font-medium text-mist">
+              Sözleşme yenileme ayı
+            </label>
+            <div class="relative mt-2">
+              <select
+                id="donem"
+                name="donem"
+                class="w-full appearance-none rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-lg text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60"
+              >
+                {tufeTablosu.map((d) => (
+                  <option value={d.donem} data-oran={d.oran} selected={d.donem === guncelDonem.donem}>
+                    {d.donem}
+                  </option>
+                ))}
+                {yaklasanDonemler.map((d) => (
+                  <option value={d} data-yaklasan="1">{d} — henüz açıklanmadı</option>
+                ))}
+              </select>
+              <svg class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+
+            <!-- Uygulanan oran göstergesi (seçime göre güncellenir) -->
+            <p id="oran-bilgi" class="mt-2.5 flex items-center gap-2 rounded-lg px-3 py-2 text-sm" aria-live="polite" aria-atomic="true"></p>
+          </div>
+
+          <!-- Opsiyonel: oranı elle gir -->
+          <details class="group rounded-xl border border-ink-600/70 bg-ink-900/40 px-4 py-3">
+            <summary class="flex cursor-pointer list-none items-center justify-between text-sm text-mist marker:hidden">
+              Oranı elle girmek istiyorum
+              <svg class="h-4 w-4 text-muted transition-transform duration-300 group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <label for="oranElle" class="sr-only">Özel artış oranı (yüzde)</label>
+            <div class="mt-3 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <input
+                id="oranElle"
+                name="oranElle"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="any"
+                placeholder="Örn. 25"
+                class="w-full rounded-md bg-transparent py-2.5 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+              />
+              <span class="text-muted">%</span>
+            </div>
+            <p class="mt-2 text-xs text-muted">
+              Doldurursanız tablodaki oran yerine bu oran kullanılır.
+            </p>
+          </details>
+
+          <button type="submit" class="btn-gold w-full">Hesapla</button>
+          <p id="kira-hata" class="hidden text-sm text-red-300" role="alert"></p>
+        </div>
+      </form>
+
+      <!-- Sonuç -->
+      <div class="space-y-6">
+        <div
+          id="sonuc-panel"
+          class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <p class="eyebrow">Yeni kira bedeli</p>
+          <p class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
+            <span id="sonuc-yeni">—</span>
+          </p>
+          <p class="mt-2 text-sm text-muted">
+            <span id="sonuc-artis-satir" class="hidden">
+              Artış tutarı: <span id="sonuc-artis" class="text-gold-300">—</span>
+              (<span id="sonuc-oran">—</span>%)
+            </span>
+          </p>
+
+          <!-- Eski / Yeni görsel karşılaştırma -->
+          <div id="kiyas" class="mt-8 hidden space-y-4">
+            <div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-muted">Eski kira</span>
+                <span id="kiyas-eski-val" class="font-medium text-mist">—</span>
+              </div>
+              <div class="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-ink-700">
+                <div id="bar-eski" class="h-full rounded-full bg-muted/40 transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gold-300">Yeni kira</span>
+                <span id="kiyas-yeni-val" class="font-medium text-cream">—</span>
+              </div>
+              <div class="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-ink-700">
+                <div id="bar-yeni" class="h-full rounded-full bg-gold-500 transition-all duration-700" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <button id="kopyala" type="button" class="btn-ghost mt-8 hidden">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+            </svg>
+            <span id="kopyala-metin">Sonucu kopyala</span>
+          </button>
+        </div>
+
+        <!-- Nasıl hesaplandı -->
+        <div class="surface p-6">
+          <h2 class="text-lg tracking-tight text-cream">Nasıl hesaplanıyor?</h2>
+          <p class="mt-3 text-sm leading-relaxed text-mist">
+            Yeni kira, mevcut kiraya girilen artış oranının uygulanmasıyla bulunur:
+          </p>
+          <p class="mt-3 rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+            Yeni kira = Mevcut kira × (1 + Oran ⁄ 100)
+          </p>
+          <p class="mt-3 text-xs leading-relaxed text-muted">
+            Konut ve işyerinde yıllık artış, bir önceki yılın 12 aylık TÜFE
+            ortalamasını aşamaz. {tufe.kaynak}.
+          </p>
+        </div>
+
+        <Disclaimer />
+      </div>
+    </div>
+
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>
+
+<script>
+  import { hesaplaKiraArtisi, formatTL } from '../lib/kira-artisi';
+
+  const form = document.getElementById('kira-form') as HTMLFormElement | null;
+  if (form) {
+    const $ = (id: string) => document.getElementById(id);
+    const panel = $('sonuc-panel')!;
+    const yeniEl = $('sonuc-yeni')!;
+    const artisSatir = $('sonuc-artis-satir')!;
+    const artisEl = $('sonuc-artis')!;
+    const oranEl = $('sonuc-oran')!;
+    const kiyas = $('kiyas')!;
+    const kiyasEski = $('kiyas-eski-val')!;
+    const kiyasYeni = $('kiyas-yeni-val')!;
+    const barEski = $('bar-eski')!;
+    const barYeni = $('bar-yeni')!;
+    const kopyala = $('kopyala') as HTMLButtonElement;
+    const kopyalaMetin = $('kopyala-metin')!;
+    const hata = $('kira-hata')!;
+    const donemSel = $('donem') as HTMLSelectElement;
+    const oranElleEl = $('oranElle') as HTMLInputElement;
+    const oranBilgi = $('oran-bilgi')!;
+
+    const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let kopyalaMetni = '';
+
+    const yuzdeBicim = new Intl.NumberFormat('tr-TR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    const trYuzde = (n: number) => yuzdeBicim.format(n);
+
+    // Görsel kararlar global.css @layer components içinde (.badge-gold / .badge-warn).
+    const SINIF_ALTIN = 'badge-gold';
+    const SINIF_UYARI = 'badge-warn';
+
+    type AktifOran =
+      | { oran: number; tip: 'tablo' | 'elle'; donem: string }
+      | { oran: number | null; tip: 'elle-gecersiz'; donem: string }
+      | { oran: null; tip: 'yok'; donem: string };
+
+    // Seçili dönemin tablo oranı; açıklanmamış/bilinmiyorsa null.
+    function tabloOran(opt: HTMLOptionElement | undefined): number | null {
+      if (!opt || opt.dataset.yaklasan) return null;
+      const o = parseFloat(opt.dataset.oran || '');
+      return Number.isFinite(o) ? o : null;
+    }
+
+    // Hangi oran uygulanacak? Elle giriş > tablo > (yoksa) açıklanmadı.
+    function aktifOran(): AktifOran {
+      const donem = donemSel.value;
+      const opt = donemSel.selectedOptions[0];
+      const elleHam = oranElleEl.value.trim();
+      if (elleHam !== '') {
+        const elle = parseFloat(elleHam);
+        if (Number.isFinite(elle) && elle >= 0) {
+          return { oran: elle, tip: 'elle', donem };
+        }
+        // Elle girilmiş ama geçersiz (negatif veya sayı değil) → tabloya düş, uyar.
+        return { oran: tabloOran(opt), tip: 'elle-gecersiz', donem };
+      }
+      const to = tabloOran(opt);
+      if (to !== null) return { oran: to, tip: 'tablo', donem };
+      return { oran: null, tip: 'yok', donem };
+    }
+
+    // Oran bilgisini güvenli biçimde yaz (innerHTML yok): metin + opsiyonel vurgu.
+    function oranBilgiYaz(sinif: string, metin: string, vurgu?: string) {
+      oranBilgi.className = sinif;
+      oranBilgi.textContent = metin;
+      if (vurgu) {
+        const strong = document.createElement('strong');
+        strong.className = 'ml-1 text-cream';
+        strong.textContent = vurgu;
+        oranBilgi.append(strong);
+      }
+    }
+
+    // Açıklamayı seçime göre güncelle (canlı).
+    function oranBilgiGuncelle() {
+      const a = aktifOran();
+      if (a.tip === 'elle') {
+        oranBilgiYaz(SINIF_ALTIN, 'Elle girilen oran uygulanıyor: ', `%${trYuzde(a.oran)}`);
+      } else if (a.tip === 'tablo') {
+        oranBilgiYaz(SINIF_ALTIN, `${a.donem} için yasal tavan: `, `%${trYuzde(a.oran)}`);
+      } else if (a.tip === 'elle-gecersiz') {
+        if (a.oran !== null) {
+          oranBilgiYaz(
+            SINIF_UYARI,
+            `Girdiğiniz oran geçersiz (negatif olamaz). ${a.donem} tablo oranı uygulanıyor: `,
+            `%${trYuzde(a.oran)}`,
+          );
+        } else {
+          oranBilgiYaz(
+            SINIF_UYARI,
+            `Girdiğiniz oran geçersiz (negatif olamaz) ve ${a.donem} için oran henüz açıklanmadı. Lütfen geçerli bir oran girin.`,
+          );
+        }
+      } else {
+        oranBilgiYaz(SINIF_UYARI, `${a.donem}: bu dönem henüz açıklanmadı. Hesaplamak için oranı elle girin.`);
+      }
+    }
+
+    donemSel.addEventListener('change', oranBilgiGuncelle);
+    oranElleEl.addEventListener('input', oranBilgiGuncelle);
+    oranBilgiGuncelle();
+
+    // Sayı artarak gelir (count-up), reduced-motion'da anında.
+    function countUp(el: HTMLElement, hedef: number) {
+      if (azHareket) {
+        el.textContent = formatTL(hedef);
+        return;
+      }
+      const sure = 700;
+      const t0 = performance.now();
+      function tick(now: number) {
+        const p = Math.min(1, (now - t0) / sure);
+        const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+        el.textContent = formatTL(hedef * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = formatTL(hedef);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function hataGoster(mesaj: string) {
+      hata.textContent = mesaj;
+      hata.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      hata.classList.add('hidden');
+
+      const mevcutKira = parseFloat((form.elements.namedItem('mevcutKira') as HTMLInputElement).value);
+
+      if (!Number.isFinite(mevcutKira) || mevcutKira <= 0) {
+        hataGoster('Lütfen geçerli bir kira tutarı girin.');
+        return;
+      }
+
+      const aktif = aktifOran();
+      if (aktif.oran === null) {
+        hataGoster('Seçtiğiniz dönemin oranı henüz açıklanmadı. Lütfen oranı elle girin veya açıklanan bir dönem seçin.');
+        return;
+      }
+
+      const sonuc = hesaplaKiraArtisi({ mevcutKira, oranYuzde: aktif.oran });
+
+      panel.classList.remove('opacity-60');
+      artisSatir.classList.remove('hidden');
+      kiyas.classList.remove('hidden');
+      kopyala.classList.remove('hidden');
+
+      countUp(yeniEl, sonuc.yeniKira);
+      artisEl.textContent = formatTL(sonuc.artisTutari);
+      oranEl.textContent = trYuzde(sonuc.oranYuzde);
+
+      kiyasEski.textContent = formatTL(sonuc.mevcutKira);
+      kiyasYeni.textContent = formatTL(sonuc.yeniKira);
+
+      // Bar genişlikleri: en büyük değer %100
+      const enBuyuk = Math.max(sonuc.mevcutKira, sonuc.yeniKira) || 1;
+      requestAnimationFrame(() => {
+        (barEski as HTMLElement).style.width = `${(sonuc.mevcutKira / enBuyuk) * 100}%`;
+        (barYeni as HTMLElement).style.width = `${(sonuc.yeniKira / enBuyuk) * 100}%`;
+      });
+
+      const oranKaynak = aktif.tip === 'elle' ? 'elle girilen oran' : `${aktif.donem} (TÜFE 12 aylık ort.)`;
+      kopyalaMetni =
+        `Kira Artışı Hesabı\n` +
+        `Mevcut kira: ${formatTL(sonuc.mevcutKira)}\n` +
+        `Dönem/oran: ${oranKaynak} — %${trYuzde(sonuc.oranYuzde)}\n` +
+        `Artış tutarı: ${formatTL(sonuc.artisTutari)}\n` +
+        `Yeni kira: ${formatTL(sonuc.yeniKira)}`;
+    });
+
+    kopyala.addEventListener('click', async () => {
+      if (!kopyalaMetni) return;
+      try {
+        await navigator.clipboard.writeText(kopyalaMetni);
+        kopyalaMetin.textContent = 'Kopyalandı ✓';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      } catch {
+        kopyalaMetin.textContent = 'Kopyalanamadı';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      }
+    });
+  }
+</script>

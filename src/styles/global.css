@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fontlar (self-hosted, hız için CDN değil).
+   Yalnızca latin + latin-ext subset'leri yükleniyor (Türkçe için yeterli);
+   Kiril/Yunan/Vietnamca blokları dahil edilmez. woff2 dosyaları Vite tarafından
+   hash'lenip bundle edilir ve BaseLayout'taki preload ile aynı URL'e çözülür. */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-mist font-sans antialiased;
+    /* Derinlikli zemin: koyu lacivertte hafif ışık huzmeleri */
+    background-image:
+      radial-gradient(60rem 40rem at 80% -10%, rgba(217, 183, 121, 0.06), transparent 60%),
+      radial-gradient(50rem 50rem at -10% 10%, rgba(40, 49, 80, 0.35), transparent 55%);
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Sabit (parallax) zemin yalnızca hassas işaretçili (masaüstü) cihazlarda.
+     Dokunmatik/mobilde "fixed" scroll jank'i yarattığından uygulanmaz. */
+  @media (hover: hover) and (pointer: fine) {
+    body {
+      background-attachment: fixed;
+    }
+  }
+
+  h1, h2, h3 {
+    @apply font-serif text-cream;
+  }
+
+  ::selection {
+    background: rgba(217, 183, 121, 0.25);
+    color: #fff;
+  }
+
+  /* Odak görünürlüğü (erişilebilirlik) */
+  :focus-visible {
+    outline: 2px solid theme('colors.gold.500');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Sayfa içeriğini ortalayan kapsayıcı */
+  .container-x {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+  }
+
+  /* İnce ışıltılı ayraç */
+  .hairline {
+    @apply border-t border-ink-600/60;
+  }
+
+  /* Vurgu rengiyle ince üst çizgi (kart/şerit başlıkları) */
+  .eyebrow {
+    @apply text-xs font-medium uppercase tracking-[0.22em] text-gold-500;
+  }
+
+  /* Birincil buton — şampanya altını */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold-500
+           px-6 py-3 text-sm font-semibold text-ink-950 transition
+           hover:bg-gold-300 focus-visible:outline-gold-300
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* İkincil/hayalet buton */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border
+           border-ink-600 px-5 py-3 text-sm font-medium text-mist transition
+           hover:border-gold-500/60 hover:text-cream;
+  }
+
+  /* Uygulanan oran rozeti (kira sayfası "oran-bilgi"). Görsel kararlar
+     burada merkezde; JS yalnızca .badge-gold / .badge-warn sınıfını seçer. */
+  .badge-gold {
+    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-gold-500/30
+           bg-gold-500/10 px-3 py-2 text-sm text-gold-300;
+  }
+  .badge-warn {
+    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-warn-500/30
+           bg-warn-500/10 px-3 py-2 text-sm text-warn-300;
+  }
+
+  /* Kart yüzeyi */
+  .surface {
+    @apply rounded-xl2 border border-ink-600/70 bg-ink-800/70 backdrop-blur-sm;
+  }
+}
+
+/* Hareket azaltma tercihine saygı */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

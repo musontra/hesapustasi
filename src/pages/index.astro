@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+import { calculators } from '../data/calculators';
+
+const aktifler = calculators.filter((c) => c.status === 'aktif');
+const yakinda = calculators.filter((c) => c.status === 'yakinda');
+---
+
+<BaseLayout
+  title="HesapAtölyesi — Premium Hesaplama Araçları"
+  description="Kira artışı, kıdem ve ihbar tazminatı, yıllık izin… Türkiye için hızlı, sade ve güncel hesaplama araçları tek çatı altında."
+>
+  <!-- Hero -->
+  <section class="container-x pt-20 sm:pt-28">
+    <div class="max-w-3xl animate-fade-up">
+      <p class="eyebrow">Hesaplama Araçları Merkezi</p>
+      <h1 class="mt-4 text-balance text-5xl leading-[1.05] tracking-tightest sm:text-6xl lg:text-7xl">
+        Doğru hesap, <span class="text-gold-500">zarif</span> bir deneyimle.
+      </h1>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-mist">
+        Güncel oranlarla çalışan, hızlı ve sade hesaplama araçları. Karmaşık
+        formüllerle uğraşmayın — sonucu saniyeler içinde, anlaşılır biçimde alın.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a href="/kira-artisi" class="btn-gold">Kira Artışını Hesapla</a>
+        <a href="#araclar" class="btn-ghost">Tüm araçları gör</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Araç listesi -->
+  <section id="araclar" class="container-x scroll-mt-24 pt-20 sm:pt-28">
+    <div class="flex items-end justify-between gap-4">
+      <h2 class="text-3xl tracking-tight sm:text-4xl">Araçlar</h2>
+      <p class="hidden text-sm text-muted sm:block">Düzenli olarak yenisi eklenir.</p>
+    </div>
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {aktifler.map((calc) => <CalculatorCard calc={calc} />)}
+      {yakinda.map((calc) => <CalculatorCard calc={calc} />)}
+    </div>
+  </section>
+</BaseLayout>

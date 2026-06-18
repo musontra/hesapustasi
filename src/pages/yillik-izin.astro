@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorShell from '../components/CalculatorShell.astro';
+import ComingSoon from '../components/ComingSoon.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+---
+
+<BaseLayout
+  title="Yıllık İzin Hesaplama — Yakında"
+  description="Kıdem yılınıza göre hak ettiğiniz yıllık ücretli izin gün sayısını hesaplama aracı çok yakında HesapAtölyesi'nde."
+  noindex={true}
+>
+  <CalculatorShell
+    baslik="Yıllık İzin Hesaplama"
+    ozet="Kıdem yılınıza göre hak ettiğiniz yıllık ücretli izin gün sayısını hesaplayın."
+  >
+    <div class="mx-auto max-w-2xl space-y-6">
+      <ComingSoon />
+      <Disclaimer />
+    </div>
+  </CalculatorShell>
+</BaseLayout>
