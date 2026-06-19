@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorShell from '../components/CalculatorShell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import Faq from '../components/Faq.astro';
+import type { FaqItem } from '../components/Faq.astro';
+import { donusturucular } from '../data/donusturucular';
+import { cevir, yuvarla } from '../lib/birim-cevirici';
+
+// Her dönüştürücü tanımından ayrı bir statik sayfa üret.
+export function getStaticPaths() {
+  return donusturucular.map((d) => ({ params: { cevirici: d.slug }, props: { d } }));
+}
+
+const { d } = Astro.props;
+
+// Gösterim biçimleyici (tr-TR, en çok 4 ondalık).
+const trNum = (n: number) =>
+  new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 4 }).format(n);
+
+// "Sık kullanılan değerler" tablosu — build anında hesaplanır (A → B).
+const tablo = d.sikDegerler.map((a) => ({ a, b: cevir(d.tip, a, 'ileri', d.faktor) }));
+
+const sss: FaqItem[] = d.sss.map((q) => ({ soru: q.soru, cevap: q.cevap }));
+
+const dogrusal = d.tip === 'dogrusal';
+
+// Birim etiketi: ad ile kısaltma aynıysa (inç, mil) tekrarı önle.
+const birimEtiket = (b: { ad: string; kisa: string }) =>
+  b.ad === b.kisa ? b.ad : `${b.ad} (${b.kisa})`;
+
+// Sıcaklıkta negatif değer (−40 gibi) mobilde rahat girilebilsin diye düz metin
+// girişi + tam klavye; doğrusal birimlerde sayısal ondalık klavye.
+const inputType = dogrusal ? 'number' : 'text';
+const inputMode = dogrusal ? 'decimal' : 'text';
+---
+
+<BaseLayout title={d.title} description={d.description}>
+  <CalculatorShell baslik={d.h1} ozet={d.ozet}>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <!-- Dönüştürücü -->
+      <form
+        id="cevirici"
+        class="surface h-fit p-6 sm:p-7"
+        novalidate
+        data-tip={d.tip}
+        data-faktor={d.faktor ?? ''}
+        data-a-ad={d.birimA.ad}
+        data-a-kisa={d.birimA.kisa}
+        data-b-ad={d.birimB.ad}
+        data-b-kisa={d.birimB.kisa}
+      >
+        <h2 class="text-xl tracking-tight">Dönüştür</h2>
+
+        <div class="mt-6 space-y-3">
+          <!-- Üst alan (başlangıçta A birimi) -->
+          <div>
+            <label id="ust-label" for="ust" class="block text-sm font-medium text-mist">
+              {birimEtiket(d.birimA)}
+            </label>
+            <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <input
+                id="ust"
+                type={inputType}
+                inputmode={inputMode}
+                step={dogrusal ? 'any' : undefined}
+                placeholder="0"
+                class="w-full rounded-md bg-transparent py-3 text-lg text-cream focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+              />
+              <span id="ust-birim" class="whitespace-nowrap text-muted">{d.birimA.kisa}</span>
+            </div>
+          </div>
+
+          <!-- Yön değiştir -->
+          <div class="flex justify-center">
+            <button
+              id="swap"
+              type="button"
+              aria-label="Birimleri yer değiştir"
+              class="grid h-11 w-11 place-items-center rounded-full border border-ink-600 text-muted transition hover:border-gold-500/60 hover:text-gold-300 focus-visible:ring-2 focus-visible:ring-gold-500/60"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m17 4 3 3-3 3" />
+                <path d="M20 7H8" />
+                <path d="m7 20-3-3 3-3" />
+                <path d="M4 17h12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Alt alan (başlangıçta B birimi) -->
+          <div>
+            <label id="alt-label" for="alt" class="block text-sm font-medium text-mist">
+              {birimEtiket(d.birimB)}
+            </label>
+            <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <input
+                id="alt"
+                type={inputType}
+                inputmode={inputMode}
+                step={dogrusal ? 'any' : undefined}
+                placeholder="0"
+                class="w-full rounded-md bg-transparent py-3 text-lg text-cream focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+              />
+              <span id="alt-birim" class="whitespace-nowrap text-muted">{d.birimB.kisa}</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs text-muted">
+          Bir alana yazın; diğeri anında hesaplanır. Yön değiştirmek için ortadaki düğmeyi kullanın.
+        </p>
+      </form>
+
+      <!-- Açıklama + uyarı -->
+      <div class="space-y-6">
+        <div class="surface p-6">
+          <h2 class="text-lg tracking-tight text-cream">Nasıl çevriliyor?</h2>
+          {dogrusal ? (
+            <div class="mt-3 space-y-2">
+              <p class="rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+                1 {d.birimA.ad} = {trNum(yuvarla(d.faktor!))} {d.birimB.kisa}
+              </p>
+              <p class="rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+                1 {d.birimB.ad} = {trNum(yuvarla(1 / d.faktor!))} {d.birimA.kisa}
+              </p>
+            </div>
+          ) : (
+            <div class="mt-3 space-y-2">
+              <p class="rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+                °F = (°C × 9/5) + 32
+              </p>
+              <p class="rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+                °C = (°F − 32) × 5/9
+              </p>
+            </div>
+          )}
+          <p class="mt-3 text-xs leading-relaxed text-muted">
+            Sonuçlar okunabilirlik için en çok dört ondalığa yuvarlanır.
+          </p>
+        </div>
+
+        <Disclaimer metin="Dönüşüm sonuçları yuvarlama nedeniyle küçük farklar içerebilir. Bu araç yalnızca bilgilendirme amaçlıdır." />
+      </div>
+    </div>
+
+    <!-- Sık kullanılan değerler -->
+    <section aria-labelledby="tablo-baslik" class="mt-16">
+      <h2 id="tablo-baslik" class="text-2xl tracking-tight sm:text-3xl">Sık kullanılan değerler</h2>
+      <div class="mt-6 overflow-hidden rounded-xl border border-ink-600/60">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-ink-600/60 bg-ink-800/60 text-left text-mist">
+              <th scope="col" class="px-4 py-3 font-medium">{birimEtiket(d.birimA)}</th>
+              <th scope="col" class="px-4 py-3 font-medium">{birimEtiket(d.birimB)}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-ink-600/40">
+            {tablo.map((r) => (
+              <tr>
+                <td class="px-4 py-2.5 text-mist">{trNum(r.a)} {d.birimA.kisa}</td>
+                <td class="px-4 py-2.5 font-medium text-cream">{trNum(r.b)} {d.birimB.kisa}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>
+
+<script>
+  import { cevir, type CeviriTipi } from '../lib/birim-cevirici';
+
+  const form = document.getElementById('cevirici') as HTMLFormElement | null;
+  if (form) {
+    const tip = form.dataset.tip as CeviriTipi;
+    const faktor = form.dataset.faktor ? parseFloat(form.dataset.faktor) : undefined;
+
+    const ust = document.getElementById('ust') as HTMLInputElement;
+    const alt = document.getElementById('alt') as HTMLInputElement;
+    const ustLabel = document.getElementById('ust-label')!;
+    const altLabel = document.getElementById('alt-label')!;
+    const ustBirim = document.getElementById('ust-birim')!;
+    const altBirim = document.getElementById('alt-birim')!;
+    const swap = document.getElementById('swap')!;
+
+    const birim = {
+      A: { ad: form.dataset.aAd!, kisa: form.dataset.aKisa! },
+      B: { ad: form.dataset.bAd!, kisa: form.dataset.bKisa! },
+    };
+
+    // Üst alan şu an A birimini mi gösteriyor?
+    let ustA = true;
+
+    // input[type=number] nokta ondalık bekler; düz sayı dizesi ver.
+    const bicimle = (n: number) => (Number.isFinite(n) ? String(n) : '');
+
+    // fromIsA: kaynak değer A birimi mi? (ileri = A→B)
+    const donustur = (deger: number, fromIsA: boolean) =>
+      cevir(tip, deger, fromIsA ? 'ileri' : 'geri', faktor);
+
+    ust.addEventListener('input', () => {
+      const v = parseFloat(ust.value);
+      alt.value = Number.isFinite(v) ? bicimle(donustur(v, ustA)) : '';
+    });
+
+    alt.addEventListener('input', () => {
+      const v = parseFloat(alt.value);
+      ust.value = Number.isFinite(v) ? bicimle(donustur(v, !ustA)) : '';
+    });
+
+    // Ad ile kısaltma aynıysa (inç, mil) tekrarı önle.
+    const etiket = (b: { ad: string; kisa: string }) =>
+      b.ad === b.kisa ? b.ad : `${b.ad} (${b.kisa})`;
+
+    function etiketleriYaz() {
+      const u = ustA ? birim.A : birim.B;
+      const a = ustA ? birim.B : birim.A;
+      ustLabel.textContent = etiket(u);
+      altLabel.textContent = etiket(a);
+      ustBirim.textContent = u.kisa;
+      altBirim.textContent = a.kisa;
+    }
+
+    swap.addEventListener('click', () => {
+      ustA = !ustA;
+      // Değerleri takas et — sayısal ilişki korunduğu için yeniden hesaplamaya gerek yok.
+      const t = ust.value;
+      ust.value = alt.value;
+      alt.value = t;
+      etiketleriYaz();
+      ust.focus();
+    });
+  }
+</script>

@@ -3,8 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CalculatorCard from '../components/CalculatorCard.astro';
 import { calculators } from '../data/calculators';
 
-const aktifler = calculators.filter((c) => c.status === 'aktif');
-const yakinda = calculators.filter((c) => c.status === 'yakinda');
+// Aktifler önce, "yakında"lar sonra — kategori içinde sırala.
+const sirala = (a: typeof calculators) =>
+  [...a].sort((x, y) => Number(y.status === 'aktif') - Number(x.status === 'aktif'));
+
+const hesaplayicilar = sirala(calculators.filter((c) => c.category === 'hesaplayici'));
+const donusturucular = sirala(calculators.filter((c) => c.category === 'donusturucu'));
 ---
 
 <BaseLayout
@@ -29,16 +33,27 @@ const yakinda = calculators.filter((c) => c.status === 'yakinda');
     </div>
   </section>
 
-  <!-- Araç listesi -->
+  <!-- Hesaplama araçları -->
   <section id="araclar" class="container-x scroll-mt-24 pt-20 sm:pt-28">
     <div class="flex items-end justify-between gap-4">
-      <h2 class="text-3xl tracking-tight sm:text-4xl">Araçlar</h2>
+      <h2 class="text-3xl tracking-tight sm:text-4xl">Hesaplama Araçları</h2>
       <p class="hidden text-sm text-muted sm:block">Düzenli olarak yenisi eklenir.</p>
     </div>
 
     <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {aktifler.map((calc) => <CalculatorCard calc={calc} />)}
-      {yakinda.map((calc) => <CalculatorCard calc={calc} />)}
+      {hesaplayicilar.map((calc) => <CalculatorCard calc={calc} />)}
+    </div>
+  </section>
+
+  <!-- Birim dönüştürücüler -->
+  <section id="donusturucular" class="container-x scroll-mt-24 pt-20 sm:pt-28">
+    <div class="flex items-end justify-between gap-4">
+      <h2 class="text-3xl tracking-tight sm:text-4xl">Birim Dönüştürücüler</h2>
+      <p class="hidden text-sm text-muted sm:block">Anında, çift yönlü dönüşüm.</p>
+    </div>
+
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {donusturucular.map((calc) => <CalculatorCard calc={calc} />)}
     </div>
   </section>
 </BaseLayout>

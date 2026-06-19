@@ -7,6 +7,8 @@ interface Props {
 const { calc } = Astro.props;
 const aktif = calc.status === 'aktif';
 const Tag = aktif ? 'a' : 'div';
+// Dönüştürücüler için "Çevir", hesaplayıcılar için "Hesapla".
+const eylem = calc.category === 'donusturucu' ? 'Çevir' : 'Hesapla';
 ---
 
 <Tag
@@ -17,7 +19,9 @@ const Tag = aktif ? 'a' : 'div';
       ? 'hover:-translate-y-1 hover:border-gold-500/40 hover:shadow-glow'
       : 'cursor-default opacity-60',
   ]}
-  aria-disabled={!aktif}
+  role={!aktif ? 'link' : undefined}
+  aria-disabled={!aktif ? 'true' : undefined}
+  aria-label={!aktif ? `${calc.title} — yakında, henüz kullanılamıyor` : undefined}
 >
   {!aktif && (
     <span class="absolute right-5 top-5 rounded-full border border-ink-600 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted">
@@ -41,7 +45,7 @@ const Tag = aktif ? 'a' : 'div';
 
   {aktif && (
     <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-gold-500">
-      Hesapla
+      {eylem}
       <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M5 12h14M13 6l6 6-6 6" />
       </svg>

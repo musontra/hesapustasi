@@ -1,8 +1,19 @@
-// Tüm hesaplayıcıların merkezi kaydı.
-// Ana sayfa ve gezinme bu listeden beslenir. Yeni araç eklemek için
-// buraya bir kayıt ekle + ilgili src/pages/<slug>.astro sayfasını oluştur.
+// Tüm araçların merkezi kaydı (hesaplayıcılar + birim dönüştürücüler).
+// Ana sayfa, footer ve gezinme bu listeden beslenir. Dönüştürücü kartları
+// tek doğruluk kaynağı olarak src/data/donusturucular.ts'ten türetilir.
+
+import { donusturucular } from './donusturucular';
 
 export type CalculatorStatus = 'aktif' | 'yakinda';
+export type CalculatorCategory = 'hesaplayici' | 'donusturucu';
+export type CalculatorIcon =
+  | 'kira'
+  | 'kidem'
+  | 'ihbar'
+  | 'izin'
+  | 'uzunluk'
+  | 'agirlik'
+  | 'sicaklik';
 
 export interface Calculator {
   /** URL parçası, ör. "kira-artisi" -> /kira-artisi */
@@ -12,11 +23,13 @@ export interface Calculator {
   /** Kartta görünen tek cümlelik açıklama */
   description: string;
   /** Basit inline SVG ikon adı (bkz. components/CalcIcon.astro) */
-  icon: 'kira' | 'kidem' | 'ihbar' | 'izin';
+  icon: CalculatorIcon;
   status: CalculatorStatus;
+  /** Ana sayfa/footer gruplaması */
+  category: CalculatorCategory;
 }
 
-export const calculators: Calculator[] = [
+const hesaplayicilar: Calculator[] = [
   {
     slug: 'kira-artisi',
     title: 'Kira Artışı Hesaplama',
@@ -24,6 +37,7 @@ export const calculators: Calculator[] = [
       'Güncel TÜFE oranına göre yasal kira artışını ve yeni kira bedelini saniyeler içinde hesaplayın.',
     icon: 'kira',
     status: 'aktif',
+    category: 'hesaplayici',
   },
   {
     slug: 'kidem-tazminati',
@@ -32,6 +46,7 @@ export const calculators: Calculator[] = [
       'Çalışma sürenize ve brüt ücretinize göre kıdem tazminatınızı hesaplayın.',
     icon: 'kidem',
     status: 'yakinda',
+    category: 'hesaplayici',
   },
   {
     slug: 'ihbar-tazminati',
@@ -40,6 +55,7 @@ export const calculators: Calculator[] = [
       'Kıdeminize göre ihbar süresi ve ihbar tazminatı tutarını öğrenin.',
     icon: 'ihbar',
     status: 'yakinda',
+    category: 'hesaplayici',
   },
   {
     slug: 'yillik-izin',
@@ -48,8 +64,21 @@ export const calculators: Calculator[] = [
       'Kıdem yılınıza göre hak ettiğiniz yıllık ücretli izin gün sayısını hesaplayın.',
     icon: 'izin',
     status: 'yakinda',
+    category: 'hesaplayici',
   },
 ];
+
+// Dönüştürücü kartları, dönüştürücü tanımlarından türetilir (tekrar yok).
+const donusturucuKartlari: Calculator[] = donusturucular.map((d) => ({
+  slug: d.slug,
+  title: d.kartBaslik,
+  description: d.kartAciklama,
+  icon: d.icon,
+  status: 'aktif',
+  category: 'donusturucu',
+}));
+
+export const calculators: Calculator[] = [...hesaplayicilar, ...donusturucuKartlari];
 
 /** Tek bir hesaplayıcıyı slug ile bul */
 export function getCalculator(slug: string): Calculator | undefined {

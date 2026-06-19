@@ -7,6 +7,9 @@ import Footer from '../components/Footer.astro';
 // global.css'teki @font-face url()'leriyle aynı varlığa çözülür.
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import frauncesLatin from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
+// Türkçe başlık karakterleri (İ, ş, Ğ, ç …) latin-ext alt kümesinde; başlıklar
+// Fraunces ile çizildiğinden bu dosyayı da öne al (H1/title FOUT'unu azaltır).
+import frauncesLatinExt from '@fontsource-variable/fraunces/files/fraunces-latin-ext-wght-normal.woff2?url';
 
 interface Props {
   /** Sayfaya özgü <title> (SEO — her sayfa benzersiz olmalı) */
@@ -40,6 +43,7 @@ const ogImageUrl = new URL(ogImage, siteOrigin).href;
     <!-- Birincil fontları erkenden indir (LCP/FOUT iyileştirmesi) -->
     <link rel="preload" as="font" type="font/woff2" href={interLatin} crossorigin="anonymous" />
     <link rel="preload" as="font" type="font/woff2" href={frauncesLatin} crossorigin="anonymous" />
+    <link rel="preload" as="font" type="font/woff2" href={frauncesLatinExt} crossorigin="anonymous" />
 
     <!-- Open Graph (sosyal paylaşım) -->
     <meta property="og:type" content="website" />

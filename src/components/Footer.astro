@@ -1,10 +1,13 @@
 ---
 const year = new Date().getFullYear();
 import { calculators } from '../data/calculators';
+
+const hesaplayicilar = calculators.filter((c) => c.category === 'hesaplayici');
+const donusturucular = calculators.filter((c) => c.category === 'donusturucu');
 ---
 
 <footer class="mt-24 border-t border-ink-600/40">
-  <div class="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
     <div>
       <span class="font-serif text-lg text-cream">Hesap<span class="text-gold-500">Atölyesi</span></span>
       <p class="mt-3 max-w-xs text-sm text-muted">
@@ -16,7 +19,7 @@ import { calculators } from '../data/calculators';
     <div>
       <p class="eyebrow">Hesaplayıcılar</p>
       <ul class="mt-4 space-y-2 text-sm">
-        {calculators.map((c) => (
+        {hesaplayicilar.map((c) => (
           <li>
             <a
               href={`/${c.slug}`}
@@ -26,6 +29,22 @@ import { calculators } from '../data/calculators';
               {c.status === 'yakinda' && (
                 <span class="ml-1 text-xs text-muted">(yakında)</span>
               )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <p class="eyebrow">Dönüştürücüler</p>
+      <ul class="mt-4 space-y-2 text-sm">
+        {donusturucular.map((c) => (
+          <li>
+            <a
+              href={`/${c.slug}`}
+              class="text-mist transition hover:text-gold-300"
+            >
+              {c.title}
             </a>
           </li>
         ))}
