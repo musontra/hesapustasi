@@ -3,7 +3,9 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
 // "Yakında" (noindex) sayfaları sitemap'e dahil etme. Aktifleşince buradan çıkar.
-const sitemapHaricleri = ['/kidem-tazminati', '/ihbar-tazminati', '/yillik-izin'];
+// Kıdem/ihbar yeni uzun slug'lara taşındı; aktifleşince otomatik sitemap'e girer.
+// Eski kısa slug'lar public/_redirects ile yeni adreslerine 301'leniyor.
+const sitemapHaricleri = ['/yillik-izin'];
 
 // https://astro.build/config
 export default defineConfig({

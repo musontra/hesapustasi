@@ -40,21 +40,21 @@ const hesaplayicilar: Calculator[] = [
     category: 'hesaplayici',
   },
   {
-    slug: 'kidem-tazminati',
+    slug: 'kidem-tazminati-hesaplama',
     title: 'Kıdem Tazminatı Hesaplama',
     description:
       'Çalışma sürenize ve brüt ücretinize göre kıdem tazminatınızı hesaplayın.',
     icon: 'kidem',
-    status: 'yakinda',
+    status: 'aktif',
     category: 'hesaplayici',
   },
   {
-    slug: 'ihbar-tazminati',
+    slug: 'ihbar-tazminati-hesaplama',
     title: 'İhbar Tazminatı Hesaplama',
     description:
       'Kıdeminize göre ihbar süresi ve ihbar tazminatı tutarını öğrenin.',
     icon: 'ihbar',
-    status: 'yakinda',
+    status: 'aktif',
     category: 'hesaplayici',
   },
   {

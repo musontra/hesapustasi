@@ -131,12 +131,10 @@ const sss: FaqItem[] = [
         <div
           id="sonuc-panel"
           class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
-          aria-live="polite"
-          aria-atomic="true"
         >
           <p class="eyebrow">Yeni kira bedeli</p>
           <p class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
-            <span id="sonuc-yeni">—</span>
+            <span id="sonuc-yeni" aria-hidden="true">—</span>
           </p>
           <p class="mt-2 text-sm text-muted">
             <span id="sonuc-artis-satir" class="hidden">
@@ -175,6 +173,9 @@ const sss: FaqItem[] = [
             <span id="kopyala-metin">Sonucu kopyala</span>
           </button>
         </div>
+
+        <!-- Ekran okuyucu için nihai sonucu bir kez duyur (panelden ayrı, görünmez) -->
+        <p id="sr-sonuc" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 
         <!-- Nasıl hesaplandı -->
         <div class="surface p-6">
@@ -218,6 +219,7 @@ const sss: FaqItem[] = [
     const kopyala = $('kopyala') as HTMLButtonElement;
     const kopyalaMetin = $('kopyala-metin')!;
     const hata = $('kira-hata')!;
+    const srSonuc = $('sr-sonuc')!;
     const donemSel = $('donem') as HTMLSelectElement;
     const oranElleEl = $('oranElle') as HTMLInputElement;
     const oranBilgi = $('oran-bilgi')!;
@@ -354,6 +356,8 @@ const sss: FaqItem[] = [
       kopyala.classList.remove('hidden');
 
       countUp(yeniEl, sonuc.yeniKira);
+      // Nihai sonucu ekran okuyucuya bir kez duyur (animasyondan bağımsız).
+      srSonuc.textContent = `Yeni kira: ${formatTL(sonuc.yeniKira)}. Artış: ${formatTL(sonuc.artisTutari)}.`;
       artisEl.textContent = formatTL(sonuc.artisTutari);
       oranEl.textContent = trYuzde(sonuc.oranYuzde);
 

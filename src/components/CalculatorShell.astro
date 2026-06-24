@@ -10,8 +10,10 @@ interface Props {
   ozet: string;
   /** "Son güncelleme" rozetini göster (oran kullanan araçlar için) */
   guncellemeGoster?: boolean;
+  /** Rozette gösterilecek tarih; verilmezse TÜFE'nin son güncelleme tarihi kullanılır */
+  guncellemeTarihi?: string;
 }
-const { baslik, ozet, guncellemeGoster = false } = Astro.props;
+const { baslik, ozet, guncellemeGoster = false, guncellemeTarihi = tufe.sonGuncelleme } = Astro.props;
 ---
 
 <section class="container-x pt-12 sm:pt-16">
@@ -29,7 +31,7 @@ const { baslik, ozet, guncellemeGoster = false } = Astro.props;
     {guncellemeGoster && (
       <p class="mt-5 inline-flex items-center gap-2 rounded-full border border-ink-600/70 bg-ink-800/50 px-3.5 py-1.5 text-xs text-muted">
         <span class="h-1.5 w-1.5 rounded-full bg-gold-500"></span>
-        Son güncelleme: {tufe.sonGuncelleme}
+        Son güncelleme: {guncellemeTarihi}
       </p>
     )}
   </div>

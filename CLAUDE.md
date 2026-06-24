@@ -21,8 +21,8 @@ tazminatı, yıllık izin vb.).
 ## Mimari İlkeler
 
 1. **Her hesaplayıcı kendi sayfasında.** Rotalar `src/pages/` altında ayrı
-   dosyalar: `/kira-artisi`, `/kidem-tazminati`, `/ihbar-tazminati`,
-   `/yillik-izin` ...
+   dosyalar: `/kira-artisi`, `/kidem-tazminati-hesaplama`,
+   `/ihbar-tazminati-hesaplama`, `/yillik-izin` ...
 2. **Ana sayfa** (`/`) tüm hesaplayıcıları premium kartlar halinde listeler.
    Yeni araç eklenince ana sayfaya otomatik/kolayca düşmeli (tek bir
    `calculators` veri kaynağından beslenir).

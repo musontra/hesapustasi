@@ -1,0 +1,360 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorShell from '../components/CalculatorShell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import Faq from '../components/Faq.astro';
+import type { FaqItem } from '../components/Faq.astro';
+import { sonGuncelleme, kaynak } from '../data/tazminat';
+
+const sss: FaqItem[] = [
+  {
+    soru: 'İhbar süreleri ne kadardır?',
+    cevap:
+      'İhbar süresi kıdeme göre belirlenir: 6 aydan az çalışmada 2 hafta, 6 ay–1,5 yıl arası 4 hafta, 1,5–3 yıl arası 6 hafta, 3 yıldan fazla çalışmada 8 hafta. İhbar tazminatı bu sürelere denk gelen gün sayısı (14/28/42/56 gün) üzerinden hesaplanır.',
+  },
+  {
+    soru: 'İhbar tazminatından neden gelir vergisi kesilir?',
+    cevap:
+      'Kıdem tazminatının aksine ihbar tazminatı gelir vergisinden istisna değildir; ücret geliri gibi gelir vergisi tarifesine tabidir. Ayrıca binde 7,59 damga vergisi kesilir. Bu nedenle net tutar brütten belirgin biçimde düşüktür.',
+  },
+  {
+    soru: 'İhbar tazminatını kimler alamaz?',
+    cevap:
+      'İş sözleşmesi ihbar sürelerine uyularak veya haklı nedenle derhal feshedildiğinde ihbar tazminatı doğmaz. İhbar tazminatı, bildirim şartına uyulmadan yapılan fesihlerde, bildirimde bulunmayan tarafın karşı tarafa ödemesi gereken tutardır.',
+  },
+  {
+    soru: 'İhbar tazminatında tavan veya 1 yıl şartı var mı?',
+    cevap:
+      'Hayır. Kıdem tazminatından farklı olarak ihbar tazminatında üst sınır (tavan) ve en az 1 yıl çalışma şartı yoktur. Birkaç aylık çalışmada bile kıdeme uygun ihbar süresi kadar tazminat doğabilir.',
+  },
+];
+---
+
+<BaseLayout
+  title="İhbar Tazminatı Hesaplama 2026 | Brüt ve Net"
+  description="Giriş-çıkış tarihinizi ve brüt maaşınızı girin; ihbar sürenizi, brüt, gelir vergisi ve tahmini net ihbar tazminatınızı 2026 dilimleriyle hesaplayın."
+>
+  <CalculatorShell
+    baslik="İhbar Tazminatı Hesaplama"
+    ozet="Kıdeminize göre ihbar sürenizi ve ihbar tazminatınızın brüt ile tahmini net tutarını anında görün."
+    guncellemeGoster={true}
+    guncellemeTarihi={sonGuncelleme}
+  >
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <!-- Giriş -->
+      <form id="ihbar-form" class="surface h-fit p-6 sm:p-7" novalidate>
+        <h2 class="text-xl tracking-tight">Bilgileri girin</h2>
+
+        <div class="mt-6 space-y-5">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="giris" class="block text-sm font-medium text-mist">İşe giriş tarihi</label>
+              <input
+                id="giris"
+                name="giris"
+                type="date"
+                class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60"
+                required
+              />
+            </div>
+            <div>
+              <label for="cikis" class="block text-sm font-medium text-mist">İşten çıkış tarihi</label>
+              <input
+                id="cikis"
+                name="cikis"
+                type="date"
+                class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="ciplakBrut" class="block text-sm font-medium text-mist">
+              Aylık çıplak brüt maaş (TL)
+            </label>
+            <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <span class="text-muted">₺</span>
+              <input
+                id="ciplakBrut"
+                name="ciplakBrut"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="any"
+                placeholder="Örn. 90000"
+                class="w-full rounded-md bg-transparent py-3 text-lg text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Opsiyonel: yan haklar -->
+          <details class="group rounded-xl border border-ink-600/70 bg-ink-900/40 px-4 py-3">
+            <summary class="flex cursor-pointer list-none items-center justify-between text-sm text-mist marker:hidden">
+              Yan hakları ekle (yol, yemek, prim)
+              <svg class="h-4 w-4 text-muted transition-transform duration-300 group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+            <div class="mt-3 grid gap-3 sm:grid-cols-3">
+              <div>
+                <label for="yol" class="block text-xs text-muted">Yol (aylık ₺)</label>
+                <input id="yol" name="yol" type="number" inputmode="decimal" min="0" step="any" placeholder="0"
+                  class="mt-1.5 w-full rounded-lg border border-ink-600 bg-ink-900/60 px-3 py-2 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+              </div>
+              <div>
+                <label for="yemek" class="block text-xs text-muted">Yemek (aylık ₺)</label>
+                <input id="yemek" name="yemek" type="number" inputmode="decimal" min="0" step="any" placeholder="0"
+                  class="mt-1.5 w-full rounded-lg border border-ink-600 bg-ink-900/60 px-3 py-2 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+              </div>
+              <div>
+                <label for="prim" class="block text-xs text-muted">Prim (aylık ₺)</label>
+                <input id="prim" name="prim" type="number" inputmode="decimal" min="0" step="any" placeholder="0"
+                  class="mt-1.5 w-full rounded-lg border border-ink-600 bg-ink-900/60 px-3 py-2 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+              </div>
+            </div>
+            <p class="mt-2 text-xs text-muted">
+              Düzenli ödenen yan haklar çıplak maaşa eklenip giydirilmiş brüt bulunur.
+            </p>
+          </details>
+
+          <!-- Opsiyonel: kümülatif gelir vergisi matrahı -->
+          <div>
+            <label for="kumulatif" class="block text-sm font-medium text-mist">
+              Bu yılki kümülatif gelir vergisi matrahı (TL) <span class="text-muted">— opsiyonel</span>
+            </label>
+            <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+              <span class="text-muted">₺</span>
+              <input
+                id="kumulatif"
+                name="kumulatif"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="any"
+                placeholder="0"
+                class="w-full rounded-md bg-transparent py-2.5 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+              />
+            </div>
+            <p class="mt-2 text-xs text-muted">
+              Boş bırakırsanız yıl başı (0) kabul edilir; net tutar tahminidir.
+            </p>
+          </div>
+
+          <button type="submit" class="btn-gold w-full">Hesapla</button>
+          <p id="ihbar-hata" class="hidden text-sm text-red-300" role="alert"></p>
+        </div>
+      </form>
+
+      <!-- Sonuç -->
+      <div class="space-y-6">
+        <div
+          id="sonuc-panel"
+          class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
+        >
+          <p class="eyebrow">Tahmini net ihbar tazminatı</p>
+          <p class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
+            <span id="sonuc-net" aria-hidden="true">—</span>
+          </p>
+          <p class="mt-2 text-sm text-muted">
+            <span id="sonuc-gun-satir" class="hidden">
+              İhbar süresi: <span id="sonuc-gun" class="text-gold-300">—</span>
+            </span>
+          </p>
+
+          <!-- Döküm -->
+          <div id="dokum" class="mt-7 hidden space-y-3 text-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Brüt ihbar tazminatı</span>
+              <span id="d-brut" class="font-medium text-mist">—</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Gelir vergisi (<span id="d-dilim">—</span>)</span>
+              <span id="d-gv" class="font-medium text-mist">−</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-muted">Damga vergisi (binde 7,59)</span>
+              <span id="d-damga" class="font-medium text-mist">−</span>
+            </div>
+            <div class="hairline !border-ink-600/70 pt-3 flex items-center justify-between">
+              <span class="text-cream">Tahmini net tutar</span>
+              <span id="d-net" class="font-semibold text-gold-300">—</span>
+            </div>
+          </div>
+
+          <!-- Net'in tahmini olduğu notu -->
+          <p id="net-not" class="mt-5 hidden text-xs leading-relaxed text-muted">
+            Brüt tutar kesindir; net, yıl içi gelirinize ve asgari ücret
+            istisnasına göre değişebilir.
+          </p>
+
+          <button id="kopyala" type="button" class="btn-ghost mt-8 hidden">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="11" height="11" rx="2" />
+              <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+            </svg>
+            <span id="kopyala-metin">Sonucu kopyala</span>
+          </button>
+        </div>
+
+        <!-- Ekran okuyucu için nihai sonucu bir kez duyur (panelden ayrı, görünmez) -->
+        <p id="sr-sonuc" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+        <!-- Nasıl hesaplandı -->
+        <div class="surface p-6">
+          <h2 class="text-lg tracking-tight text-cream">Nasıl hesaplanıyor?</h2>
+          <p class="mt-3 text-sm leading-relaxed text-mist">
+            Kıdeme göre ihbar günü (14/28/42/56) belirlenir; günlük brüt ücretle
+            çarpılır. İhbarda tavan ve 1 yıl şartı yoktur:
+          </p>
+          <p class="mt-3 rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+            Brüt = (giydirilmiş brüt ⁄ 30) × ihbar günü &nbsp;·&nbsp; Net = Brüt − Gelir vergisi − Damga
+          </p>
+          <p class="mt-3 text-xs leading-relaxed text-muted">
+            Kıdem tazminatının aksine ihbar tazminatı gelir vergisine tabidir.
+            {kaynak}.
+          </p>
+        </div>
+
+        <Disclaimer metin="Bu araç yalnızca bilgilendirme amaçlıdır; kesin bordro değildir ve hukuki danışmanlık yerine geçmez." />
+
+        <!-- Çapraz bağlantı -->
+        <a href="/kidem-tazminati-hesaplama" class="surface flex items-center justify-between gap-4 p-5 transition hover:border-gold-500/40 hover:shadow-glow">
+          <span class="text-sm text-mist">Kıdem tazminatınızı da hesaplayın</span>
+          <svg class="h-4 w-4 flex-none text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>
+
+<script>
+  import { ihbarTazminati } from '../lib/tazminat';
+  import { formatTL } from '../lib/kira-artisi';
+
+  const form = document.getElementById('ihbar-form') as HTMLFormElement | null;
+  if (form) {
+    const $ = (id: string) => document.getElementById(id)!;
+    const panel = $('sonuc-panel');
+    const netEl = $('sonuc-net');
+    const gunSatir = $('sonuc-gun-satir');
+    const gunEl = $('sonuc-gun');
+    const dokum = $('dokum');
+    const dBrut = $('d-brut');
+    const dGv = $('d-gv');
+    const dDilim = $('d-dilim');
+    const dDamga = $('d-damga');
+    const dNet = $('d-net');
+    const netNot = $('net-not');
+    const srSonuc = $('sr-sonuc');
+    const kopyala = $('kopyala') as HTMLButtonElement;
+    const kopyalaMetin = $('kopyala-metin');
+    const hata = $('ihbar-hata');
+
+    const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let kopyalaMetni = '';
+
+    const num = (name: string) => {
+      const v = parseFloat((form.elements.namedItem(name) as HTMLInputElement)?.value ?? '');
+      // Negatif girişler giydirilmiş brütü düşürmesin; 0'a kırp.
+      return Number.isFinite(v) ? Math.max(0, v) : 0;
+    };
+    const str = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement)?.value ?? '';
+    const yuzde = (oran: number) =>
+      `%${(oran * 100).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}`;
+
+    function countUp(el: HTMLElement, hedef: number) {
+      if (azHareket) {
+        el.textContent = formatTL(hedef);
+        return;
+      }
+      const sure = 700;
+      const t0 = performance.now();
+      function tick(now: number) {
+        const p = Math.min(1, (now - t0) / sure);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = formatTL(hedef * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = formatTL(hedef);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function hataGoster(mesaj: string) {
+      hata.textContent = mesaj;
+      hata.classList.remove('hidden');
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      hata.classList.add('hidden');
+
+      const giris = str('giris');
+      const cikis = str('cikis');
+      const ciplakBrut = num('ciplakBrut');
+
+      if (!giris || !cikis) {
+        hataGoster('Lütfen giriş ve çıkış tarihlerini girin.');
+        return;
+      }
+      if (cikis <= giris) {
+        hataGoster('Çıkış tarihi giriş tarihinden sonra olmalıdır.');
+        return;
+      }
+      if (ciplakBrut <= 0) {
+        hataGoster('Lütfen geçerli bir brüt maaş girin.');
+        return;
+      }
+
+      const giydirilmis = ciplakBrut + num('yol') + num('yemek') + num('prim');
+      const sonuc = ihbarTazminati({
+        giydirilmisAylikBrut: giydirilmis,
+        giris,
+        cikis,
+        kumulatifMatrah: num('kumulatif'),
+      });
+
+      panel.classList.remove('opacity-60');
+      gunSatir.classList.remove('hidden');
+      dokum.classList.remove('hidden');
+      netNot.classList.remove('hidden');
+      kopyala.classList.remove('hidden');
+
+      countUp(netEl, sonuc.net);
+      // Nihai sonucu ekran okuyucuya bir kez duyur (animasyondan bağımsız).
+      srSonuc.textContent = `Tahmini net ihbar tazminatı: ${formatTL(sonuc.net)}, ihbar süresi ${sonuc.ihbarGun} gün.`;
+      gunEl.textContent = `${sonuc.ihbarGun} gün`;
+      dBrut.textContent = formatTL(sonuc.brut);
+      dDilim.textContent = yuzde(sonuc.uygulananDilim);
+      dGv.textContent = '− ' + formatTL(sonuc.gelirVergisi);
+      dDamga.textContent = '− ' + formatTL(sonuc.damga);
+      dNet.textContent = formatTL(sonuc.net);
+
+      kopyalaMetni =
+        `İhbar Tazminatı Hesabı (tahmini)\n` +
+        `İhbar süresi: ${sonuc.ihbarGun} gün\n` +
+        `Brüt: ${formatTL(sonuc.brut)}\n` +
+        `Gelir vergisi (${yuzde(sonuc.uygulananDilim)}): ${formatTL(sonuc.gelirVergisi)}\n` +
+        `Damga vergisi: ${formatTL(sonuc.damga)}\n` +
+        `Tahmini net: ${formatTL(sonuc.net)}`;
+    });
+
+    kopyala.addEventListener('click', async () => {
+      if (!kopyalaMetni) return;
+      try {
+        await navigator.clipboard.writeText(kopyalaMetni);
+        kopyalaMetin.textContent = 'Kopyalandı ✓';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      } catch {
+        kopyalaMetin.textContent = 'Kopyalanamadı';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      }
+    });
+  }
+</script>
