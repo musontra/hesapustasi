@@ -12,6 +12,9 @@ node_modules/
 .env
 .env.production
 
+# otomasyon: PR gövdesi her çalışmada üretilir, commit edilmez (yalnızca body-path)
+automation/pr-body.md
+
 # logs
 npm-debug.log*
 yarn-debug.log*

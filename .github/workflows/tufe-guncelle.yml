@@ -1,0 +1,61 @@
+name: TÜFE oranını güncelle
+
+# TÜİK 12 aylık TÜFE ortalamasını her ayın başında açıklar. Bu iş ayın 3-7'si
+# arası çalışıp EVDS'ten yeni oranı çeker, çapalarla doğrular ve değişiklik
+# varsa bir PR açar. PR otomatik MERGE EDİLMEZ — insan onayı beklenir.
+
+on:
+  schedule:
+    # Her ayın 3-7'si, 08:00 UTC (TÜİK açıklamasından sonra).
+    - cron: '0 8 3-7 * *'
+  workflow_dispatch:
+    inputs:
+      test_pr:
+        description: 'Test PR (gerçek oranı değiştirmeden hattı dene)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  guncelle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoyu çek
+        uses: actions/checkout@v4
+
+      - name: Node kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Bağımlılıkları yükle
+        run: npm ci
+
+      - name: TÜFE oranını hesapla ve oranlar.ts'i güncelle
+        id: update
+        env:
+          EVDS_API_KEY: ${{ secrets.EVDS_API_KEY }}
+          TEST_PR: ${{ github.event.inputs.test_pr }}
+        run: node scripts/update-oranlar.mjs
+
+      # KAPI: oranlar.ts değiştiyse site hâlâ derleniyor mu? Derlenmezse iş
+      # burada başarısız olur ve PR adımına geçilmez.
+      - name: Site derleniyor mu (build kapısı)
+        run: npm run build
+
+      - name: PR aç / güncelle
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: otomasyon/tufe-guncelleme
+          base: main
+          delete-branch: false
+          commit-message: ${{ steps.update.outputs.title }}
+          title: ${{ steps.update.outputs.title }}
+          body-path: automation/pr-body.md
+          labels: |
+            otomasyon
+            tufe
