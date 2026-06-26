@@ -42,6 +42,13 @@
 @layer base {
   :root {
     color-scheme: dark;
+
+    /* Hareket sistemi — tutarlı geçiş süreleri ve easing eğrileri. */
+    --dur-fast: 150ms;
+    --dur-med: 240ms;
+    --reveal-dur: 600ms;
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* yumuşak yavaşlayan biten */
   }
 
   html {
@@ -141,6 +148,49 @@
   .surface {
     @apply rounded-xl2 border border-ink-600/70 bg-ink-800/70 backdrop-blur-sm;
   }
+}
+
+/* ── Mikro-etkileşimler (merkezi hover/active) ─────────────────────────────
+   Geçişler CSS değişkenleriyle; focus-visible halkaları base'de korunur. */
+.btn-gold,
+.btn-ghost {
+  transition: color var(--dur-fast) var(--ease-standard),
+              background-color var(--dur-fast) var(--ease-standard),
+              border-color var(--dur-fast) var(--ease-standard),
+              transform var(--dur-fast) var(--ease-standard),
+              box-shadow var(--dur-med) var(--ease-standard);
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px -12px rgba(217, 183, 121, 0.55);
+}
+.btn-ghost:hover {
+  transform: translateY(-1px);
+}
+.btn-gold:active,
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* Etkileşimli kart yüzeyleri (yalnızca tıklanabilir <a.surface>) — yumuşak geçiş.
+   Statik .surface panelleri (sonuç kartının opacity geçişi vb.) etkilenmez. */
+a.surface {
+  transition: border-color var(--dur-med) var(--ease-standard),
+              box-shadow var(--dur-med) var(--ease-standard),
+              transform var(--dur-med) var(--ease-standard);
+}
+
+/* Scroll-reveal — yalnızca motion-ready (JS açık + reduced-motion değil) iken gizle. */
+.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity var(--reveal-dur) var(--ease-out),
+              transform var(--reveal-dur) var(--ease-out);
+  will-change: opacity, transform;
+}
+.motion-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
 }
 
 /* Hareket azaltma tercihine saygı */

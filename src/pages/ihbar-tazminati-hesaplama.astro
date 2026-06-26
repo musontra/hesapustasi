@@ -237,8 +237,9 @@ const sss: FaqItem[] = [
   import { ihbarTazminati } from '../lib/tazminat';
   import { formatTL } from '../lib/kira-artisi';
 
-  const form = document.getElementById('ihbar-form') as HTMLFormElement | null;
-  if (form) {
+  function initIhbar() {
+    const form = document.getElementById('ihbar-form') as HTMLFormElement | null;
+    if (!form) return;
     const $ = (id: string) => document.getElementById(id)!;
     const panel = $('sonuc-panel');
     const netEl = $('sonuc-net');
@@ -274,11 +275,12 @@ const sss: FaqItem[] = [
         el.textContent = formatTL(hedef);
         return;
       }
-      const sure = 700;
+      const sure = 1100;
       const t0 = performance.now();
       function tick(now: number) {
         const p = Math.min(1, (now - t0) / sure);
-        const eased = 1 - Math.pow(1 - p, 3);
+        // easeOutExpo — premium, yumuşak yavaşlayarak biten eğri.
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
         el.textContent = formatTL(hedef * eased);
         if (p < 1) requestAnimationFrame(tick);
         else el.textContent = formatTL(hedef);
@@ -357,4 +359,6 @@ const sss: FaqItem[] = [
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initIhbar);
 </script>
