@@ -15,20 +15,31 @@ const donusturucular = sirala(calculators.filter((c) => c.category === 'donustur
   title="HesapAtölyesi — Premium Hesaplama Araçları"
   description="Kira artışı, kıdem ve ihbar tazminatı, yıllık izin… Türkiye için hızlı, sade ve güncel hesaplama araçları tek çatı altında."
 >
-  <!-- Hero -->
-  <section class="container-x pt-20 sm:pt-28">
-    <div class="max-w-3xl animate-fade-up">
-      <p class="eyebrow">Hesaplama Araçları Merkezi</p>
-      <h1 class="mt-4 text-balance text-5xl leading-[1.05] tracking-tightest sm:text-6xl lg:text-7xl">
-        Doğru hesap, <span class="text-gold-500">zarif</span> bir deneyimle.
-      </h1>
-      <p class="mt-6 max-w-xl text-lg leading-relaxed text-mist">
-        Güncel oranlarla çalışan, hızlı ve sade hesaplama araçları. Karmaşık
-        formüllerle uğraşmayın — sonucu saniyeler içinde, anlaşılır biçimde alın.
-      </p>
-      <div class="mt-8 flex flex-wrap items-center gap-3">
-        <a href="/kira-artisi" class="btn-gold">Kira Artışını Hesapla</a>
-        <a href="#araclar" class="btn-ghost">Tüm araçları gör</a>
+  <!-- Hero — 3B dekoratif arka plan + gerçek HTML içerik (anında render) -->
+  <section class="relative flex min-h-[70vh] items-center overflow-hidden sm:min-h-[78vh]">
+    <!-- Şeffaf 3B canvas (arka katman). WebGL/JS yoksa düz koyu zemin kalır. -->
+    <canvas
+      id="hero-canvas"
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-0 z-0 h-full w-full"
+    ></canvas>
+    <!-- Hero'dan kartlara yumuşak geçiş için alt degrade örtü -->
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-32 bg-gradient-to-b from-transparent to-ink-950"></div>
+
+    <div class="container-x relative z-[1] py-20 sm:py-24">
+      <div class="max-w-3xl animate-fade-up">
+        <p class="eyebrow">Hesaplama Araçları Merkezi</p>
+        <h1 class="mt-4 text-balance text-5xl leading-[1.05] tracking-tightest sm:text-6xl lg:text-7xl">
+          Doğru hesap, <span class="text-gold-500">zarif</span> bir deneyimle.
+        </h1>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-mist">
+          Güncel oranlarla çalışan, hızlı ve sade hesaplama araçları. Karmaşık
+          formüllerle uğraşmayın — sonucu saniyeler içinde, anlaşılır biçimde alın.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="/kira-artisi" class="btn-gold">Kira Artışını Hesapla</a>
+          <a href="#araclar" class="btn-ghost">Tüm araçları gör</a>
+        </div>
       </div>
     </div>
   </section>
@@ -57,3 +68,57 @@ const donusturucular = sirala(calculators.filter((c) => c.category === 'donustur
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Hero 3B sahnesini LCP'yi bloklamadan, yalnızca görünür/boşta başlat.
+  // View Transitions ömrü: ayrılırken dispose, geri gelince yeniden başlat.
+  let started = false;
+  let heroLoaded = false;
+  let startIO: IntersectionObserver | null = null;
+  let idleId: number | null = null;
+  let canvasRef: HTMLCanvasElement | null = null;
+
+  function clearTriggers() {
+    if (startIO) { startIO.disconnect(); startIO = null; }
+    if (idleId != null) {
+      if ('cancelIdleCallback' in window) (window as any).cancelIdleCallback(idleId);
+      else clearTimeout(idleId);
+      idleId = null;
+    }
+  }
+
+  function startHero() {
+    if (started || !canvasRef) return;
+    started = true;
+    heroLoaded = true;
+    clearTriggers();
+    const canvas = canvasRef;
+    import('../scripts/hero3d').then((m) => m.initHero3d(canvas));
+  }
+
+  function setupHero() {
+    canvasRef = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
+    started = false;
+    if (!canvasRef) return; // ana sayfada değiliz
+    // Hero görünür olunca başlat...
+    startIO = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) startHero();
+    });
+    startIO.observe(canvasRef);
+    // ...veya tarayıcı boşta kalınca (ilk boyamadan sonra).
+    if ('requestIdleCallback' in window) {
+      idleId = (window as any).requestIdleCallback(startHero, { timeout: 2500 });
+    } else {
+      idleId = window.setTimeout(startHero, 1200);
+    }
+  }
+
+  function teardownHero() {
+    clearTriggers();
+    started = false;
+    if (heroLoaded) import('../scripts/hero3d').then((m) => m.disposeHero3d());
+  }
+
+  document.addEventListener('astro:page-load', setupHero);
+  document.addEventListener('astro:before-swap', teardownHero);
+</script>
