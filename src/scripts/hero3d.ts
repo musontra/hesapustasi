@@ -17,10 +17,9 @@ import {
   BufferAttribute,
   Points,
   PointsMaterial,
-  IcosahedronGeometry,
-  WireframeGeometry,
-  LineSegments,
-  LineBasicMaterial,
+  SphereGeometry,
+  MeshBasicMaterial,
+  Mesh,
 } from 'three';
 
 const GOLD = 0xd9b779; // gold-500 token'ına yakın şampanya altını
@@ -32,8 +31,8 @@ interface HeroState {
   scene: Scene;
   camera: PerspectiveCamera;
   group: Group;
-  ico: LineSegments;
-  shell: LineSegments;
+  outer: Mesh;
+  inner: Mesh;
   raf: number | null;
   animated: boolean;
   inView: boolean;
@@ -115,22 +114,17 @@ export function initHero3d(canvas: HTMLCanvasElement): void {
   group.add(new Points(goldGeo, goldMat));
   group.add(new Points(grayGeo, grayMat));
 
-  // Tel kafes ikosahedron + dış kabuk.
-  const icoBase = new IcosahedronGeometry(1.25, 1);
-  const icoWire = new WireframeGeometry(icoBase);
-  const icoMat = new LineBasicMaterial({ color: GOLD, transparent: true, opacity: 0.5 });
-  const ico = new LineSegments(icoWire, icoMat);
-  group.add(ico);
+  // Izgara küre (wireframe sphere) — merkez nesne. Dış + iç katman (derinlik).
+  const outerGeo = new SphereGeometry(1.32, 18, 12);
+  const outerMat = new MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.8 });
+  const outer = new Mesh(outerGeo, outerMat);
+  outer.rotation.x = 0.18; // sabit hafif eğim
+  group.add(outer);
 
-  const shellBase = new IcosahedronGeometry(1.85, 1);
-  const shellWire = new WireframeGeometry(shellBase);
-  const shellMat = new LineBasicMaterial({ color: GRAY, transparent: true, opacity: 0.12 });
-  const shell = new LineSegments(shellWire, shellMat);
-  group.add(shell);
-
-  // Wireframe kopyaladıktan sonra temel geometriler gereksiz.
-  icoBase.dispose();
-  shellBase.dispose();
+  const innerGeo = new SphereGeometry(0.9, 12, 8);
+  const innerMat = new MeshBasicMaterial({ color: GOLD, wireframe: true, transparent: true, opacity: 0.18 });
+  const inner = new Mesh(innerGeo, innerMat);
+  group.add(inner);
 
   const onPointer = (e: PointerEvent) => {
     if (!state) return;
@@ -153,10 +147,10 @@ export function initHero3d(canvas: HTMLCanvasElement): void {
   };
 
   state = {
-    canvas, renderer, scene, camera, group, ico, shell,
+    canvas, renderer, scene, camera, group, outer, inner,
     raf: null, animated, inView: true, pageVisible: !document.hidden,
     pointerX: 0, pointerY: 0, camX: 0, camY: 0, start: performance.now(),
-    disposables: [goldGeo, grayGeo, goldMat, grayMat, icoWire, icoMat, shellWire, shellMat],
+    disposables: [goldGeo, grayGeo, goldMat, grayMat, outerGeo, outerMat, innerGeo, innerMat],
     io: null, onPointer, onResize, onVisibility,
   };
 
@@ -187,7 +181,7 @@ export function initHero3d(canvas: HTMLCanvasElement): void {
 
 function renderFrame(): void {
   if (!state) return;
-  const { renderer, scene, camera, group, ico, shell } = state;
+  const { renderer, scene, camera, group, outer, inner } = state;
 
   if (state.animated) {
     const t = (performance.now() - state.start) / 1000;
@@ -197,13 +191,12 @@ function renderFrame(): void {
     camera.position.x = state.camX;
     camera.position.y = state.camY;
     camera.lookAt(0, 0, 0);
-    // Yavaş dönme.
+    // Parçacık alanının yavaş dönüşü (değişmedi).
     group.rotation.y = t * 0.08;
     group.rotation.x = 0.15 + Math.sin(t * 0.15) * 0.1;
-    // Hafif nabız (sin tabanlı ölçek).
-    const pulse = 1 + Math.sin(t * 0.8) * 0.03;
-    ico.scale.setScalar(pulse);
-    shell.scale.setScalar(pulse);
+    // Izgara küre sakin döner: dış yavaş (y), iç ters yönde; nabız yok.
+    outer.rotation.y += 0.004;
+    inner.rotation.y -= 0.006;
   }
 
   renderer.render(scene, camera);
