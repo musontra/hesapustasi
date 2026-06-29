@@ -146,7 +146,7 @@ const inputMode = dogrusal ? 'decimal' : 'text';
 
     <!-- Sık kullanılan değerler -->
     <section aria-labelledby="tablo-baslik" class="mt-16">
-      <h2 id="tablo-baslik" class="text-2xl tracking-tight sm:text-3xl">Sık kullanılan değerler</h2>
+      <h2 id="tablo-baslik" class="text-2xl tracking-tight sm:text-3xl" data-reveal>Sık kullanılan değerler</h2>
       <div class="mt-6 overflow-hidden rounded-xl border border-ink-600/60">
         <table class="w-full text-sm">
           <thead>
@@ -174,8 +174,9 @@ const inputMode = dogrusal ? 'decimal' : 'text';
 <script>
   import { cevir, type CeviriTipi } from '../lib/birim-cevirici';
 
-  const form = document.getElementById('cevirici') as HTMLFormElement | null;
-  if (form) {
+  function initCevirici() {
+    const form = document.getElementById('cevirici') as HTMLFormElement | null;
+    if (!form) return;
     const tip = form.dataset.tip as CeviriTipi;
     const faktor = form.dataset.faktor ? parseFloat(form.dataset.faktor) : undefined;
 
@@ -235,4 +236,6 @@ const inputMode = dogrusal ? 'decimal' : 'text';
       ust.focus();
     });
   }
+
+  document.addEventListener('astro:page-load', initCevirici);
 </script>

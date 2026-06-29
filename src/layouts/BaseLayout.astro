@@ -1,11 +1,15 @@
 ---
 import '../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
 // Birincil (latin) font dosyaları — preload için. Vite hash'ler ve
 // global.css'teki @font-face url()'leriyle aynı varlığa çözülür.
 import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+// Türkçe gövde karakterleri (İ, ş, ğ, ç …) Inter'de latin-ext alt kümesinde;
+// gövde FOUT'unu azaltmak için bu dosyayı da öne al.
+import interLatinExt from '@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url';
 import frauncesLatin from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
 // Türkçe başlık karakterleri (İ, ş, Ğ, ç …) latin-ext alt kümesinde; başlıklar
 // Fraunces ile çizildiğinden bu dosyayı da öne al (H1/title FOUT'unu azaltır).
@@ -35,6 +39,16 @@ const ogImageUrl = new URL(ogImage, siteOrigin).href;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
+    <!-- Sayfalar arası akıcı client-side geçiş -->
+    <ViewTransitions />
+    <!-- Reveal'ın ilk boyamada gizlenebilmesi için işaret; reduced-motion'da
+         eklenmez (öğeler direkt görünür kalır). is:inline → boyamadan önce çalışır. -->
+    <script is:inline>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('motion-ready');
+      }
+    </script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -42,6 +56,7 @@ const ogImageUrl = new URL(ogImage, siteOrigin).href;
 
     <!-- Birincil fontları erkenden indir (LCP/FOUT iyileştirmesi) -->
     <link rel="preload" as="font" type="font/woff2" href={interLatin} crossorigin="anonymous" />
+    <link rel="preload" as="font" type="font/woff2" href={interLatinExt} crossorigin="anonymous" />
     <link rel="preload" as="font" type="font/woff2" href={frauncesLatin} crossorigin="anonymous" />
     <link rel="preload" as="font" type="font/woff2" href={frauncesLatinExt} crossorigin="anonymous" />
 
@@ -70,5 +85,11 @@ const ogImageUrl = new URL(ogImage, siteOrigin).href;
       <slot />
     </main>
     <Footer />
+
+    <script>
+      // Scroll-reveal'ı her gezinmede (ve ilk yükte) yeni DOM için başlat.
+      import { initReveal } from '../scripts/reveal';
+      document.addEventListener('astro:page-load', initReveal);
+    </script>
   </body>
 </html>

@@ -3,8 +3,10 @@ import CalcIcon from './CalcIcon.astro';
 import type { Calculator } from '../data/calculators';
 interface Props {
   calc: Calculator;
+  /** Kart sırası — scroll-reveal stagger gecikmesi için (opsiyonel) */
+  index?: number;
 }
-const { calc } = Astro.props;
+const { calc, index = 0 } = Astro.props;
 const aktif = calc.status === 'aktif';
 const Tag = aktif ? 'a' : 'div';
 // Dönüştürücüler için "Çevir", hesaplayıcılar için "Hesapla".
@@ -13,6 +15,8 @@ const eylem = calc.category === 'donusturucu' ? 'Çevir' : 'Hesapla';
 
 <Tag
   href={aktif ? `/${calc.slug}` : undefined}
+  data-reveal
+  data-reveal-delay={(index % 3) * 90}
   class:list={[
     'group surface relative flex flex-col p-6 transition duration-300',
     aktif

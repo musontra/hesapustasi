@@ -131,6 +131,7 @@ const sss: FaqItem[] = [
         <div
           id="sonuc-panel"
           class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
+          aria-hidden="true"
         >
           <p class="eyebrow">Yeni kira bedeli</p>
           <p class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
@@ -203,8 +204,9 @@ const sss: FaqItem[] = [
 <script>
   import { hesaplaKiraArtisi, formatTL } from '../lib/kira-artisi';
 
-  const form = document.getElementById('kira-form') as HTMLFormElement | null;
-  if (form) {
+  function initKiraArtisi() {
+    const form = document.getElementById('kira-form') as HTMLFormElement | null;
+    if (!form) return;
     const $ = (id: string) => document.getElementById(id);
     const panel = $('sonuc-panel')!;
     const yeniEl = $('sonuc-yeni')!;
@@ -314,11 +316,12 @@ const sss: FaqItem[] = [
         el.textContent = formatTL(hedef);
         return;
       }
-      const sure = 700;
+      const sure = 1100;
       const t0 = performance.now();
       function tick(now: number) {
         const p = Math.min(1, (now - t0) / sure);
-        const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+        // easeOutExpo — premium, yumuşak yavaşlayarak biten eğri.
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
         el.textContent = formatTL(hedef * eased);
         if (p < 1) requestAnimationFrame(tick);
         else el.textContent = formatTL(hedef);
@@ -351,6 +354,7 @@ const sss: FaqItem[] = [
       const sonuc = hesaplaKiraArtisi({ mevcutKira, oranYuzde: aktif.oran });
 
       panel.classList.remove('opacity-60');
+      panel.removeAttribute('aria-hidden');
       artisSatir.classList.remove('hidden');
       kiyas.classList.remove('hidden');
       kopyala.classList.remove('hidden');
@@ -392,4 +396,6 @@ const sss: FaqItem[] = [
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initKiraArtisi);
 </script>

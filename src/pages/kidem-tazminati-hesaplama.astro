@@ -129,6 +129,7 @@ const sss: FaqItem[] = [
         <div
           id="sonuc-panel"
           class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
+          aria-hidden="true"
         >
           <p id="eyebrow" class="eyebrow">Net kıdem tazminatı</p>
           <p id="net-wrap" class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
@@ -155,7 +156,7 @@ const sss: FaqItem[] = [
           </div>
 
           <!-- Hesap meta: süre + giydirilmiş brüt -->
-          <dl id="meta" class="mt-7 hidden grid grid-cols-2 gap-4 border-t border-ink-600/50 pt-5 text-sm">
+          <dl id="meta" class="mt-7 hidden grid-cols-2 gap-4 border-t border-ink-600/50 pt-5 text-sm">
             <div>
               <dt class="text-muted">Hizmet süresi</dt>
               <dd id="m-sure" class="mt-1 text-cream">—</dd>
@@ -214,8 +215,9 @@ const sss: FaqItem[] = [
   import { kidemTazminati } from '../lib/tazminat';
   import { formatTL } from '../lib/kira-artisi';
 
-  const form = document.getElementById('kidem-form') as HTMLFormElement | null;
-  if (form) {
+  function initKidem() {
+    const form = document.getElementById('kidem-form') as HTMLFormElement | null;
+    if (!form) return;
     const $ = (id: string) => document.getElementById(id)!;
     const panel = $('sonuc-panel');
     const netEl = $('sonuc-net');
@@ -250,11 +252,12 @@ const sss: FaqItem[] = [
         el.textContent = formatTL(hedef);
         return;
       }
-      const sure = 700;
+      const sure = 1100;
       const t0 = performance.now();
       function tick(now: number) {
         const p = Math.min(1, (now - t0) / sure);
-        const eased = 1 - Math.pow(1 - p, 3);
+        // easeOutExpo — premium, yumuşak yavaşlayarak biten eğri.
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
         el.textContent = formatTL(hedef * eased);
         if (p < 1) requestAnimationFrame(tick);
         else el.textContent = formatTL(hedef);
@@ -270,12 +273,13 @@ const sss: FaqItem[] = [
     // Sonucu gizleyip yalnızca bir durum mesajı göster (hak yok / tavan yok).
     function sadeceDurum(sinif: string, mesaj: string) {
       panel.classList.remove('opacity-60');
+      panel.removeAttribute('aria-hidden');
       // Uyarının üstünde boş "—" tutar durmasın: eyebrow + sayıyı gizle.
       eyebrow.classList.add('hidden');
       netWrap.classList.add('hidden');
       netEl.textContent = '—';
       dokum.classList.add('hidden');
-      meta.classList.add('hidden');
+      meta.classList.replace('grid', 'hidden');
       kopyala.classList.add('hidden');
       durum.className = sinif;
       durum.textContent = mesaj;
@@ -332,11 +336,12 @@ const sss: FaqItem[] = [
 
       // Başarılı sonuç — eyebrow + sayıyı geri göster.
       panel.classList.remove('opacity-60');
+      panel.removeAttribute('aria-hidden');
       eyebrow.classList.remove('hidden');
       netWrap.classList.remove('hidden');
       durum.classList.add('hidden');
       dokum.classList.remove('hidden');
-      meta.classList.remove('hidden');
+      meta.classList.replace('hidden', 'grid');
       kopyala.classList.remove('hidden');
 
       countUp(netEl, sonuc.net);
@@ -377,4 +382,6 @@ const sss: FaqItem[] = [
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initKidem);
 </script>
