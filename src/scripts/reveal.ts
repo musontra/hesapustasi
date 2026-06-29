@@ -10,7 +10,14 @@
 
 const GORUNDU = 'is-revealed';
 
+// Aktif gözlemci modül kapsamında tutulur; her gezinmede yenisi kurulmadan
+// önce eskisi disconnect edilir (observer sızıntısını önlemek için).
+let aktifGozlemci: IntersectionObserver | null = null;
+
 export function initReveal(): void {
+  aktifGozlemci?.disconnect();
+  aktifGozlemci = null;
+
   const elemanlar = Array.from(
     document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-revealed)'),
   );
@@ -38,5 +45,6 @@ export function initReveal(): void {
     { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
   );
 
+  aktifGozlemci = gozlemci;
   elemanlar.forEach((el) => gozlemci.observe(el));
 }
