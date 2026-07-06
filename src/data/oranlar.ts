@@ -16,6 +16,7 @@ export interface TufeDonem {
 // Konut ve işyeri için aynı oran (kira artış tavanı = 12 aylık TÜFE ortalaması).
 // En yeni dönem en üstte → tufeTablosu[0] varsayılan/güncel orandır.
 export const tufeTablosu: TufeDonem[] = [
+  { donem: 'Temmuz 2026', oran: 32.03 },
   { donem: 'Haziran 2026', oran: 32.24 },
   { donem: 'Mayıs 2026', oran: 32.43 },
   { donem: 'Nisan 2026', oran: 32.82 },
@@ -38,16 +39,16 @@ export const tufeTablosu: TufeDonem[] = [
 
 // Henüz oranı açıklanmamış (yaklaşan) dönemler. Açılır listede görünür ama
 // seçilince "bu dönem henüz açıklanmadı" durumu gösterilir.
-export const yaklasanDonemler: string[] = ['Temmuz 2026', 'Ağustos 2026'];
+export const yaklasanDonemler: string[] = ['Ağustos 2026', 'Eylül 2026'];
 
 /** Güncel/varsayılan dönem (en yeni açıklanan ay) */
 export const guncelDonem: TufeDonem = tufeTablosu[0];
 
 /** Verinin son güncellendiği tarih — "Son güncelleme" rozetinde görünür */
-export const sonGuncelleme = '5 Haziran 2026';
+export const sonGuncelleme = '6 Temmuz 2026';
 
 /** Kaynak etiketi (şeffaflık için sayfada gösterilir) */
-export const kaynak = 'TÜFE 12 aylık ortalama — Kaynak: TÜİK, son güncelleme 5 Haziran 2026';
+export const kaynak = 'TÜFE 12 aylık ortalama — Kaynak: TÜİK, son güncelleme 6 Temmuz 2026';
 
 /** Bir döneme ait oranı bulur; tabloda yoksa undefined döner */
 export function oranBul(donem: string): number | undefined {
