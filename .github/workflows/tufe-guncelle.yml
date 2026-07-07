@@ -43,11 +43,16 @@ jobs:
         run: node scripts/update-oranlar.mjs
 
       # KAPI: oranlar.ts değiştiyse site hâlâ derleniyor mu? Derlenmezse iş
-      # burada başarısız olur ve PR adımına geçilmez.
+      # burada başarısız olur ve PR adımına geçilmez. Değişiklik yoksa
+      # (yeni ay bulunamadı) derlemeye gerek yok — adım atlanır.
       - name: Site derleniyor mu (build kapısı)
+        if: steps.update.outputs.degisti == 'true'
         run: npm run build
 
+      # Yalnızca değişiklik varsa PR aç; aksi halde bu adım atlanır ve iş
+      # yeşil biter (script değişiklik yokken automation/pr-body.md üretmez).
       - name: PR aç / güncelle
+        if: steps.update.outputs.degisti == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           branch: otomasyon/tufe-guncelleme
