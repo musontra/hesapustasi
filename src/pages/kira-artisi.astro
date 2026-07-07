@@ -329,7 +329,19 @@ const sss: FaqItem[] = [
       requestAnimationFrame(tick);
     }
 
+    // Geçersiz/eksik girişte önceki başarılı sonucu panelde bırakma.
+    function sifirla() {
+      panel.classList.add('opacity-60');
+      panel.setAttribute('aria-hidden', 'true');
+      yeniEl.textContent = '—';
+      artisSatir.classList.add('hidden');
+      kiyas.classList.add('hidden');
+      kopyala.classList.add('hidden');
+      srSonuc.textContent = '';
+    }
+
     function hataGoster(mesaj: string) {
+      sifirla();
       hata.textContent = mesaj;
       hata.classList.remove('hidden');
     }

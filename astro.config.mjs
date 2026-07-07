@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 // "Yakında" (noindex) sayfaları sitemap'e dahil etme. Aktifleşince buradan çıkar.
 // Kıdem/ihbar yeni uzun slug'lara taşındı; aktifleşince otomatik sitemap'e girer.
 // Eski kısa slug'lar public/_redirects ile yeni adreslerine 301'leniyor.
-const sitemapHaricleri = ['/yillik-izin'];
+const sitemapHaricleri = [];
 
 // https://astro.build/config
 export default defineConfig({

@@ -1,0 +1,562 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CalculatorShell from '../components/CalculatorShell.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import Faq from '../components/Faq.astro';
+import type { FaqItem } from '../components/Faq.astro';
+import { sonGuncelleme, kaynak } from '../data/yillik-izin';
+
+const bugun = new Date().toISOString().slice(0, 10);
+
+const sss: FaqItem[] = [
+  {
+    soru: 'Yıllık ücretli izne kimler hak kazanır?',
+    cevap:
+      'Aynı işverende, deneme süresi dahil, en az 1 yıl çalışmış işçiler yıllık ücretli izne hak kazanır. 1 yıldan az kıdemde yıllık izin hakkı doğmaz.',
+  },
+  {
+    soru: 'Yıllık izin gün sayısı nasıl belirlenir?',
+    cevap:
+      'Kıdeme göre: 1–5 yıl (5 dahil) arası 14 gün, 5 yıldan fazla–15 yıldan az arası 20 gün, 15 yıl ve üzeri 26 gündür. 18 yaş ve altı ile 50 yaş ve üstü işçilere ise yıllık izin en az 20 günden az olamaz.',
+  },
+  {
+    soru: 'İzin iş günü olarak mı hesaplanır?',
+    cevap:
+      'Evet. Yıllık izin süresi iş günü üzerinden sayılır; izin süresine denk gelen hafta tatili, ulusal bayram ve genel tatil günleri izinden sayılmaz. Bu nedenle fiili izin, gün sayısından daha uzun sürer.',
+  },
+  {
+    soru: 'Kullanılmayan izin parası ne zaman, nasıl ödenir?',
+    cevap:
+      'Kullanılmayan yıllık izinler, ancak iş sözleşmesi sona erdiğinde (çıkışta) ücrete dönüşür; çalışırken izin parası talep edilemez. Ödeme, çıkış tarihindeki çıplak brüt ücret üzerinden, kullanılmayan gün kadar yapılır.',
+  },
+  {
+    soru: 'İzin ücreti çıplak brütten mi hesaplanır?',
+    cevap:
+      'Evet. Kıdem tazminatının aksine yıllık izin ücreti giydirilmiş değil, çıplak brüt ücret üzerinden hesaplanır. Brütten SGK/işsizlik, gelir vergisi ve damga vergisi kesilir; net tutar bu nedenle tahminidir.',
+  },
+];
+---
+
+<BaseLayout
+  title="Yıllık İzin Hesaplama 2026 | Gün, Bakiye ve Ücret"
+  description="İşe giriş tarihinizle yıllık izin gün hakkınızı ve bakiyenizi; çıkışta kullanılmayan izin ücretinin brüt-net tutarını hesaplayın."
+>
+  <CalculatorShell
+    baslik="Yıllık İzin Hesaplama"
+    ozet="Kıdeminize göre yıllık izin gün hakkınızı ve biriken bakiyenizi; çıkışta kullanılmayan izin ücretinizi tek sayfada hesaplayın."
+    guncellemeGoster={true}
+    guncellemeTarihi={sonGuncelleme}
+  >
+    <div class="space-y-16">
+      <!-- ===================== BÖLÜM 1: Gün ve bakiye ===================== -->
+      <section aria-labelledby="b1-baslik">
+        <h2 id="b1-baslik" class="text-2xl tracking-tight sm:text-3xl" data-reveal>
+          1 · Yıllık izin gün ve bakiyesi
+        </h2>
+
+        <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <!-- Giriş -->
+          <form id="izin-form" class="surface h-fit p-6 sm:p-7" novalidate>
+            <h3 class="text-lg tracking-tight">Bilgileri girin</h3>
+
+            <div class="mt-6 space-y-5">
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label for="giris" class="block text-sm font-medium text-mist">İşe giriş tarihi</label>
+                  <input id="giris" name="giris" type="date" required
+                    class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60" />
+                </div>
+                <div>
+                  <label for="referans" class="block text-sm font-medium text-mist">Hesap (referans) tarihi</label>
+                  <input id="referans" name="referans" type="date" value={bugun}
+                    class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60" />
+                </div>
+              </div>
+
+              <div>
+                <label for="dogum" class="block text-sm font-medium text-mist">
+                  Doğum tarihi <span class="text-muted">— opsiyonel</span>
+                </label>
+                <input id="dogum" name="dogum" type="date"
+                  class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream transition focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60" />
+                <p class="mt-2 text-xs text-muted">
+                  Yaş koruması (18 ve altı / 50 ve üstü → en az 20 gün) için gerekir. Boş bırakırsanız koruma uygulanmaz.
+                </p>
+              </div>
+
+              <div>
+                <label for="kullanilan" class="block text-sm font-medium text-mist">
+                  Bugüne kadar kullandığınız izin (gün) <span class="text-muted">— opsiyonel</span>
+                </label>
+                <input id="kullanilan" name="kullanilan" type="number" inputmode="numeric" min="0" step="1" placeholder="0"
+                  class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+              </div>
+
+              <button type="submit" class="btn-gold w-full">Hesapla</button>
+              <p id="izin-hata" class="hidden text-sm text-red-300" role="alert"></p>
+            </div>
+          </form>
+
+          <!-- Sonuç -->
+          <div class="space-y-6">
+            <div id="b1-panel" class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8" aria-hidden="true">
+              <p id="b1-eyebrow" class="eyebrow">Kalan izin bakiyesi</p>
+              <p id="b1-net-wrap" class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
+                <span id="b1-kalan" aria-hidden="true">—</span>
+              </p>
+
+              <p id="b1-durum" class="hidden" aria-live="polite"></p>
+
+              <dl id="b1-dokum" class="mt-7 hidden grid-cols-2 gap-4 text-sm">
+                <div>
+                  <dt class="text-muted">Bu dönemki yıllık hak</dt>
+                  <dd id="b1-yillik" class="mt-1 text-cream">—</dd>
+                </div>
+                <div>
+                  <dt class="text-muted">Biriken toplam hak ediş</dt>
+                  <dd id="b1-biriken" class="mt-1 text-cream">—</dd>
+                </div>
+                <div>
+                  <dt class="text-muted">Kullanılan</dt>
+                  <dd id="b1-kullanilan" class="mt-1 text-cream">—</dd>
+                </div>
+                <div>
+                  <dt class="text-muted">Kıdem</dt>
+                  <dd id="b1-kidem" class="mt-1 text-cream">—</dd>
+                </div>
+              </dl>
+
+              <button id="b1-kopyala" type="button" class="btn-ghost mt-8 hidden">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+                <span id="b1-kopyala-metin">Sonucu kopyala</span>
+              </button>
+            </div>
+
+            <p id="b1-sr" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+            <div class="surface p-6">
+              <h3 class="text-base tracking-tight text-cream">Nasıl hesaplanıyor?</h3>
+              <p class="mt-3 text-sm leading-relaxed text-mist">
+                Kıdem yılınıza göre band belirlenir (1–5 yıl → 14, 5+–15 arası → 20,
+                15 ve üzeri → 26 gün); biriken toplam, tamamlanan her yılın bandının
+                toplamıdır. 18 ve altı / 50 ve üstü yaşta bir yıl en az 20 gündür.
+              </p>
+              <p class="mt-3 text-xs leading-relaxed text-muted">
+                İzin iş günü üzerinden sayılır; izne denk gelen hafta tatili, ulusal
+                bayram ve genel tatil izinden sayılmaz — fiili izin daha uzun sürer. {kaynak}.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== BÖLÜM 2: İzin ücreti ===================== -->
+      <section aria-labelledby="b2-baslik">
+        <h2 id="b2-baslik" class="text-2xl tracking-tight sm:text-3xl" data-reveal>
+          2 · Kullanılmayan izin ücreti (çıkışta)
+        </h2>
+
+        <div class="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <!-- Giriş -->
+          <form id="ucret-form" class="surface h-fit p-6 sm:p-7" novalidate>
+            <h3 class="text-lg tracking-tight">Bilgileri girin</h3>
+
+            <div class="mt-6 space-y-5">
+              <div>
+                <label for="ciplakBrut" class="block text-sm font-medium text-mist">Aylık çıplak brüt ücret (TL)</label>
+                <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+                  <span class="text-muted">₺</span>
+                  <input id="ciplakBrut" name="ciplakBrut" type="number" inputmode="decimal" min="0" step="any" placeholder="Örn. 60000" required
+                    class="w-full rounded-md bg-transparent py-3 text-lg text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+                </div>
+              </div>
+
+              <div>
+                <label for="kullanilmayanGun" class="block text-sm font-medium text-mist">Kullanılmayan izin günü</label>
+                <input id="kullanilmayanGun" name="kullanilmayanGun" type="number" inputmode="numeric" min="0" step="1" placeholder="0" required
+                  class="mt-2 w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+                <p class="mt-2 text-xs text-muted">Bölüm 1'deki kalan bakiye buraya öneri olarak taşınır; değiştirebilirsiniz.</p>
+              </div>
+
+              <div>
+                <label for="kumulatif" class="block text-sm font-medium text-mist">
+                  Bu yılki kümülatif gelir vergisi matrahı (TL) <span class="text-muted">— opsiyonel</span>
+                </label>
+                <div class="mt-2 flex items-center gap-2 rounded-xl border border-ink-600 bg-ink-900/60 px-4 transition focus-within:border-gold-500/60">
+                  <span class="text-muted">₺</span>
+                  <input id="kumulatif" name="kumulatif" type="number" inputmode="decimal" min="0" step="any" placeholder="0"
+                    class="w-full rounded-md bg-transparent py-2.5 text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60" />
+                </div>
+                <p class="mt-2 text-xs text-muted">Boş bırakırsanız yıl başı (0) kabul edilir; net tahminidir.</p>
+              </div>
+
+              <button type="submit" class="btn-gold w-full">Hesapla</button>
+              <p id="ucret-hata" class="hidden text-sm text-red-300" role="alert"></p>
+            </div>
+          </form>
+
+          <!-- Sonuç -->
+          <div class="space-y-6">
+            <div id="b2-panel" class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8" aria-hidden="true">
+              <p class="eyebrow">Tahmini net izin ücreti</p>
+              <p class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
+                <span id="b2-net" aria-hidden="true">—</span>
+              </p>
+
+              <div id="b2-dokum" class="mt-7 hidden space-y-3 text-sm">
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Günlük brüt</span>
+                  <span id="b2-gunluk" class="font-medium text-mist">—</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Brüt izin ücreti</span>
+                  <span id="b2-brut" class="font-medium text-mist">—</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">SGK + işsizlik (%15)</span>
+                  <span id="b2-sgk" class="font-medium text-mist">−</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Gelir vergisi (<span id="b2-dilim">—</span>)</span>
+                  <span id="b2-gv" class="font-medium text-mist">−</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-muted">Damga vergisi</span>
+                  <span id="b2-damga" class="font-medium text-mist">−</span>
+                </div>
+                <div class="hairline !border-ink-600/70 pt-3 flex items-center justify-between">
+                  <span class="text-cream">Tahmini net</span>
+                  <span id="b2-net-dokum" class="font-semibold text-gold-300">—</span>
+                </div>
+              </div>
+
+              <p id="b2-not" class="mt-5 hidden text-xs leading-relaxed text-muted">
+                Brüt kesindir; net, yıl içi gelirinize göre değişebilir ve çıkışta
+                ödenen izin ücretinde SGK kesintisi uygulaması tartışmalıdır.
+              </p>
+
+              <button id="b2-kopyala" type="button" class="btn-ghost mt-8 hidden">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+                <span id="b2-kopyala-metin">Sonucu kopyala</span>
+              </button>
+            </div>
+
+            <p id="b2-sr" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+            <div class="surface p-6">
+              <h3 class="text-base tracking-tight text-cream">Kritik notlar</h3>
+              <p class="mt-3 text-sm leading-relaxed text-mist">
+                Yıllık izin ücreti, kıdem tazminatının aksine <strong class="text-cream">çıplak brüt</strong>
+                (giydirilmiş değil) ücret üzerinden hesaplanır:
+              </p>
+              <p class="mt-3 rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+                Brüt = (çıplak brüt ⁄ 30) × gün &nbsp;·&nbsp; Net = Brüt − SGK/işsizlik − Gelir vergisi − Damga
+              </p>
+              <p class="mt-3 text-xs leading-relaxed text-muted">
+                Net tahminidir: çıkışta ödenen izin ücretinde SGK kesintisi tartışmalıdır
+                ve gelir vergisi yıl içi kümülatif matraha göre değişir. {kaynak}.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Disclaimer metin="Bu araç yalnızca bilgilendirme amaçlıdır; kesin bordro değildir ve hukuki danışmanlık yerine geçmez. İzin ücretinde net tutar, SGK uygulaması ve yıl içi gelirinize göre değişebilir." />
+
+      <!-- İşten ayrılma üçlüsü -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        <a href="/kidem-tazminati-hesaplama" class="surface flex items-center justify-between gap-4 p-5 transition hover:border-gold-500/40 hover:shadow-glow">
+          <span class="text-sm text-mist">Kıdem tazminatınızı hesaplayın</span>
+          <svg class="h-4 w-4 flex-none text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </a>
+        <a href="/ihbar-tazminati-hesaplama" class="surface flex items-center justify-between gap-4 p-5 transition hover:border-gold-500/40 hover:shadow-glow">
+          <span class="text-sm text-mist">İhbar tazminatınızı hesaplayın</span>
+          <svg class="h-4 w-4 flex-none text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+        </a>
+      </div>
+    </div>
+
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>
+
+<script>
+  import { yillikIzinHakki, kalanBakiye, izinUcreti } from '../lib/yillik-izin';
+  import { formatTL } from '../lib/kira-artisi';
+
+  function initYillikIzin() {
+    const izinForm = document.getElementById('izin-form') as HTMLFormElement | null;
+    const ucretForm = document.getElementById('ucret-form') as HTMLFormElement | null;
+    if (!izinForm && !ucretForm) return;
+
+    const $ = (id: string) => document.getElementById(id)!;
+    const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const numFrom = (form: HTMLFormElement, name: string) => {
+      const v = parseFloat((form.elements.namedItem(name) as HTMLInputElement)?.value ?? '');
+      return Number.isFinite(v) ? Math.max(0, v) : 0;
+    };
+    const strFrom = (form: HTMLFormElement, name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement)?.value ?? '';
+
+    const gunBicim = (n: number) => `${Math.round(n)} gün`;
+    const yuzde = (o: number) => `%${(o * 100).toLocaleString('tr-TR', { maximumFractionDigits: 0 })}`;
+
+    function countUp(el: HTMLElement, hedef: number, format: (n: number) => string) {
+      if (azHareket) { el.textContent = format(hedef); return; }
+      const sure = 1100;
+      const t0 = performance.now();
+      function tick(now: number) {
+        const p = Math.min(1, (now - t0) / sure);
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+        el.textContent = format(hedef * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = format(hedef);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function sureMetni(yil: number, ay: number, gun: number) {
+      const p: string[] = [];
+      if (yil) p.push(`${yil} yıl`);
+      if (ay) p.push(`${ay} ay`);
+      if (gun) p.push(`${gun} gün`);
+      return p.length ? p.join(' ') : '0 gün';
+    }
+
+    // ---------- Bölüm 1 ----------
+    if (izinForm) {
+      const panel = $('b1-panel');
+      const eyebrow = $('b1-eyebrow');
+      const netWrap = $('b1-net-wrap');
+      const kalanEl = $('b1-kalan');
+      const durum = $('b1-durum');
+      const dokum = $('b1-dokum');
+      const yillikEl = $('b1-yillik');
+      const birikenEl = $('b1-biriken');
+      const kullanilanEl = $('b1-kullanilan');
+      const kidemEl = $('b1-kidem');
+      const sr = $('b1-sr');
+      const hata = $('izin-hata');
+      const kopyala = $('b1-kopyala') as HTMLButtonElement;
+      const kopyalaMetin = $('b1-kopyala-metin');
+      let kopyalaMetni = '';
+
+      const gizleSonuc = () => {
+        eyebrow.classList.add('hidden');
+        netWrap.classList.add('hidden');
+        dokum.classList.replace('grid', 'hidden');
+      };
+      const gosterSonuc = () => {
+        eyebrow.classList.remove('hidden');
+        netWrap.classList.remove('hidden');
+        dokum.classList.replace('hidden', 'grid');
+      };
+
+      // Geçersiz/eksik girişte önceki başarılı sonucu panelde bırakma.
+      const sifirla = () => {
+        panel.classList.add('opacity-60');
+        panel.setAttribute('aria-hidden', 'true');
+        gizleSonuc();
+        durum.classList.add('hidden');
+        kalanEl.textContent = '—';
+        kopyala.classList.add('hidden');
+        kopyalaMetni = '';
+        sr.textContent = '';
+      };
+
+      kopyala.addEventListener('click', async () => {
+        if (!kopyalaMetni) return;
+        try {
+          await navigator.clipboard.writeText(kopyalaMetni);
+          kopyalaMetin.textContent = 'Kopyalandı ✓';
+          setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+        } catch {
+          kopyalaMetin.textContent = 'Kopyalanamadı';
+          setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+        }
+      });
+
+      izinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        hata.classList.add('hidden');
+        durum.classList.add('hidden');
+
+        const giris = strFrom(izinForm, 'giris');
+        const referans = strFrom(izinForm, 'referans');
+        const dogum = strFrom(izinForm, 'dogum');
+        const kullanilan = numFrom(izinForm, 'kullanilan');
+
+        if (!giris || !referans) {
+          sifirla();
+          hata.textContent = 'Lütfen giriş ve referans tarihlerini girin.';
+          hata.classList.remove('hidden');
+          return;
+        }
+        if (referans <= giris) {
+          sifirla();
+          hata.textContent = 'Referans tarihi giriş tarihinden sonra olmalıdır.';
+          hata.classList.remove('hidden');
+          return;
+        }
+
+        const sonuc = yillikIzinHakki({ giris, referansTarih: referans, dogum: dogum || undefined });
+
+        panel.classList.remove('opacity-60');
+        panel.removeAttribute('aria-hidden');
+
+        if (!sonuc.hakKazanildi) {
+          gizleSonuc();
+          kopyala.classList.add('hidden');
+          kopyalaMetni = '';
+          durum.className = 'badge-warn';
+          durum.textContent = 'Yıllık izne hak kazanmak için aynı işyerinde en az 1 yıl çalışmış olmak gerekir. Girdiğiniz kıdem 1 yıldan az.';
+          durum.classList.remove('hidden');
+          sr.textContent = durum.textContent;
+          return;
+        }
+
+        const kalan = kalanBakiye(sonuc.birikenToplam, kullanilan);
+
+        gosterSonuc();
+        countUp(kalanEl, kalan, gunBicim);
+        yillikEl.textContent = gunBicim(sonuc.yillikHak);
+        birikenEl.textContent = gunBicim(sonuc.birikenToplam);
+        kullanilanEl.textContent = gunBicim(kullanilan);
+        kidemEl.textContent = sureMetni(sonuc.kidem.yil, sonuc.kidem.ay, sonuc.kidem.gun);
+
+        // Durum notu: yaş koruması ya da doğum eksik bilgisi.
+        if (sonuc.yasKorumasiUygulandi) {
+          durum.className = 'badge-gold';
+          durum.textContent = `Yaş koruması uygulandı (${sonuc.yas} yaş): bir yıl için en az 20 gün.`;
+          durum.classList.remove('hidden');
+        } else if (!dogum) {
+          durum.className = 'badge-gold';
+          durum.textContent = 'Yaş koruması (18 altı / 50 üstü → en az 20 gün) için doğum tarihi girin.';
+          durum.classList.remove('hidden');
+        }
+
+        // Bölüm 2'ye kalan bakiyeyi (tam sayı) öneri olarak taşı.
+        const kalanYuvarli = Math.round(kalan);
+        const gunInput = document.getElementById('kullanilmayanGun') as HTMLInputElement | null;
+        if (gunInput && gunInput.value.trim() === '') gunInput.value = String(kalanYuvarli);
+
+        kopyala.classList.remove('hidden');
+        kopyalaMetni =
+          `Yıllık İzin — Gün ve Bakiye\n` +
+          `Kıdem: ${sureMetni(sonuc.kidem.yil, sonuc.kidem.ay, sonuc.kidem.gun)}\n` +
+          `Bu dönemki yıllık hak: ${gunBicim(sonuc.yillikHak)}\n` +
+          `Biriken toplam hak ediş: ${gunBicim(sonuc.birikenToplam)}\n` +
+          `Kullanılan: ${gunBicim(kullanilan)}\n` +
+          `Kalan bakiye: ${kalanYuvarli} gün`;
+
+        sr.textContent = `Kalan izin bakiyesi: ${kalanYuvarli} gün. Bu dönem hak: ${sonuc.yillikHak} gün. Biriken: ${sonuc.birikenToplam} gün.`;
+      });
+    }
+
+    // ---------- Bölüm 2 ----------
+    if (ucretForm) {
+      const panel = $('b2-panel');
+      const netEl = $('b2-net');
+      const dokum = $('b2-dokum');
+      const gunluk = $('b2-gunluk');
+      const brut = $('b2-brut');
+      const sgk = $('b2-sgk');
+      const gv = $('b2-gv');
+      const dilim = $('b2-dilim');
+      const damga = $('b2-damga');
+      const netDokum = $('b2-net-dokum');
+      const not = $('b2-not');
+      const sr = $('b2-sr');
+      const hata = $('ucret-hata');
+      const kopyala = $('b2-kopyala') as HTMLButtonElement;
+      const kopyalaMetin = $('b2-kopyala-metin');
+      let kopyalaMetni = '';
+
+      // Geçersiz girişte önceki başarılı sonucu panelde bırakma.
+      const sifirla = () => {
+        panel.classList.add('opacity-60');
+        panel.setAttribute('aria-hidden', 'true');
+        netEl.textContent = '—';
+        dokum.classList.add('hidden');
+        not.classList.add('hidden');
+        kopyala.classList.add('hidden');
+        kopyalaMetni = '';
+        sr.textContent = '';
+      };
+
+      kopyala.addEventListener('click', async () => {
+        if (!kopyalaMetni) return;
+        try {
+          await navigator.clipboard.writeText(kopyalaMetni);
+          kopyalaMetin.textContent = 'Kopyalandı ✓';
+          setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+        } catch {
+          kopyalaMetin.textContent = 'Kopyalanamadı';
+          setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+        }
+      });
+
+      ucretForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        hata.classList.add('hidden');
+
+        const aylikCiplakBrut = numFrom(ucretForm, 'ciplakBrut');
+        const kullanilmayanGun = numFrom(ucretForm, 'kullanilmayanGun');
+
+        if (aylikCiplakBrut <= 0) {
+          sifirla();
+          hata.textContent = 'Lütfen geçerli bir çıplak brüt ücret girin.';
+          hata.classList.remove('hidden');
+          return;
+        }
+        if (kullanilmayanGun <= 0) {
+          sifirla();
+          hata.textContent = 'Lütfen kullanılmayan izin gününü girin.';
+          hata.classList.remove('hidden');
+          return;
+        }
+
+        const s = izinUcreti({
+          aylikCiplakBrut,
+          kullanilmayanGun,
+          kumulatifMatrah: numFrom(ucretForm, 'kumulatif'),
+        });
+
+        panel.classList.remove('opacity-60');
+        panel.removeAttribute('aria-hidden');
+        dokum.classList.remove('hidden');
+        not.classList.remove('hidden');
+
+        countUp(netEl, s.net, formatTL);
+        gunluk.textContent = formatTL(s.gunlukBrut);
+        brut.textContent = formatTL(s.brut);
+        sgk.textContent = '− ' + formatTL(s.sgkToplam);
+        dilim.textContent = yuzde(s.uygulananDilim);
+        gv.textContent = '− ' + formatTL(s.gelirVergisi);
+        damga.textContent = '− ' + formatTL(s.damga);
+        netDokum.textContent = formatTL(s.net);
+
+        kopyala.classList.remove('hidden');
+        kopyalaMetni =
+          `Yıllık İzin Ücreti (tahmini)\n` +
+          `Günlük brüt: ${formatTL(s.gunlukBrut)}\n` +
+          `Brüt: ${formatTL(s.brut)}\n` +
+          `SGK + işsizlik: ${formatTL(s.sgkToplam)}\n` +
+          `Gelir vergisi (${yuzde(s.uygulananDilim)}): ${formatTL(s.gelirVergisi)}\n` +
+          `Damga: ${formatTL(s.damga)}\n` +
+          `Tahmini net: ${formatTL(s.net)}`;
+
+        sr.textContent = `Tahmini net izin ücreti: ${formatTL(s.net)}. Brüt: ${formatTL(s.brut)}.`;
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initYillikIzin);
+</script>

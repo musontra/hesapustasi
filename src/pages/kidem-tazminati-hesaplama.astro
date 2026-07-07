@@ -204,6 +204,12 @@ const sss: FaqItem[] = [
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </a>
+        <a href="/yillik-izin-hesaplama" class="surface flex items-center justify-between gap-4 p-5 transition hover:border-gold-500/40 hover:shadow-glow">
+          <span class="text-sm text-mist">Yıllık izninizi hesaplayın</span>
+          <svg class="h-4 w-4 flex-none text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
       </div>
     </div>
 
@@ -265,7 +271,21 @@ const sss: FaqItem[] = [
       requestAnimationFrame(tick);
     }
 
+    // Geçersiz/eksik girişte önceki başarılı sonucu panelde bırakma.
+    function sifirla() {
+      panel.classList.add('opacity-60');
+      panel.setAttribute('aria-hidden', 'true');
+      eyebrow.classList.add('hidden');
+      netWrap.classList.add('hidden');
+      netEl.textContent = '—';
+      durum.classList.add('hidden');
+      dokum.classList.add('hidden');
+      meta.classList.replace('grid', 'hidden');
+      kopyala.classList.add('hidden');
+    }
+
     function hataGoster(mesaj: string) {
+      sifirla();
       hata.textContent = mesaj;
       hata.classList.remove('hidden');
     }

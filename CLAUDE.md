@@ -22,7 +22,7 @@ tazminatı, yıllık izin vb.).
 
 1. **Her hesaplayıcı kendi sayfasında.** Rotalar `src/pages/` altında ayrı
    dosyalar: `/kira-artisi`, `/kidem-tazminati-hesaplama`,
-   `/ihbar-tazminati-hesaplama`, `/yillik-izin` ...
+   `/ihbar-tazminati-hesaplama`, `/yillik-izin-hesaplama` ...
 2. **Ana sayfa** (`/`) tüm hesaplayıcıları premium kartlar halinde listeler.
    Yeni araç eklenince ana sayfaya otomatik/kolayca düşmeli (tek bir
    `calculators` veri kaynağından beslenir).

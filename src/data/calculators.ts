@@ -58,12 +58,12 @@ const hesaplayicilar: Calculator[] = [
     category: 'hesaplayici',
   },
   {
-    slug: 'yillik-izin',
+    slug: 'yillik-izin-hesaplama',
     title: 'Yıllık İzin Hesaplama',
     description:
       'Kıdem yılınıza göre hak ettiğiniz yıllık ücretli izin gün sayısını hesaplayın.',
     icon: 'izin',
-    status: 'yakinda',
+    status: 'aktif',
     category: 'hesaplayici',
   },
 ];
