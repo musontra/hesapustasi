@@ -11,6 +11,7 @@ export type CalculatorIcon =
   | 'kidem'
   | 'ihbar'
   | 'izin'
+  | 'sinav'
   | 'uzunluk'
   | 'agirlik'
   | 'sicaklik';
@@ -63,6 +64,15 @@ const hesaplayicilar: Calculator[] = [
     description:
       'Kıdem yılınıza göre hak ettiğiniz yıllık ücretli izin gün sayısını hesaplayın.',
     icon: 'izin',
+    status: 'aktif',
+    category: 'hesaplayici',
+  },
+  {
+    slug: 'sinav/kpss-dhbt-puan',
+    title: 'KPSS DHBT Puan Hesaplama',
+    description:
+      'Doğru ve yanlışlarınızı girin; GY, GK ve DHBT netlerinizle tahmini KPSSP puanınızı öğrenin.',
+    icon: 'sinav',
     status: 'aktif',
     category: 'hesaplayici',
   },
