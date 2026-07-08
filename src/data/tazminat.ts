@@ -20,8 +20,9 @@ export interface KidemTavanDonem {
 }
 
 // En yeni dönem en üstte. Çıkış tarihi hangi aralığa düşerse o dönemin tavanı
-// kullanılır. 2026-07-01 ve sonrası HENÜZ AÇIKLANMADI — bilinçli olarak yok.
+// kullanılır. 2027-01-01 ve sonrası HENÜZ AÇIKLANMADI — bilinçli olarak yok.
 export const kidemTavanDonemleri: KidemTavanDonem[] = [
+  { bas: '2026-07-01', bit: '2026-12-31', tavan: 73729.87 },
   { bas: '2026-01-01', bit: '2026-06-30', tavan: 64948.77 },
   { bas: '2025-07-01', bit: '2025-12-31', tavan: 53919.68 },
   { bas: '2025-01-01', bit: '2025-06-30', tavan: 46655.43 },
@@ -66,7 +67,7 @@ export const ihbarSureleri: IhbarSuresi[] = [
 ];
 
 /** Verinin son güncellendiği tarih — "Son güncelleme" rozetinde görünür */
-export const sonGuncelleme = 'Ocak 2026';
+export const sonGuncelleme = 'Temmuz 2026';
 
 /** Kaynak etiketi (şeffaflık için sayfada gösterilir) */
 export const kaynak =
