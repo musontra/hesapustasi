@@ -76,6 +76,33 @@ const hesaplayicilar: Calculator[] = [
     status: 'aktif',
     category: 'hesaplayici',
   },
+  {
+    slug: 'sinav/kpss-lisans-puan',
+    title: 'KPSS Lisans Puan Hesaplama',
+    description:
+      'Lisans (P3) için Genel Yetenek ve Genel Kültür netlerinizle tahmini KPSS puanınızı hesaplayın.',
+    icon: 'sinav',
+    status: 'aktif',
+    category: 'hesaplayici',
+  },
+  {
+    slug: 'sinav/kpss-onlisans-puan',
+    title: 'KPSS Önlisans Puan Hesaplama',
+    description:
+      'Önlisans (P93) için Genel Yetenek ve Genel Kültür netlerinizle tahmini KPSS puanınızı hesaplayın.',
+    icon: 'sinav',
+    status: 'aktif',
+    category: 'hesaplayici',
+  },
+  {
+    slug: 'sinav/kpss-ortaogretim-puan',
+    title: 'KPSS Ortaöğretim Puan Hesaplama',
+    description:
+      'Ortaöğretim (P94) için Genel Yetenek ve Genel Kültür netlerinizle tahmini KPSS puanınızı hesaplayın.',
+    icon: 'sinav',
+    status: 'aktif',
+    category: 'hesaplayici',
+  },
 ];
 
 // Dönüştürücü kartları, dönüştürücü tanımlarından türetilir (tekrar yok).

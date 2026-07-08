@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorShell from '../../components/CalculatorShell.astro';
+import Faq from '../../components/Faq.astro';
+import type { FaqItem } from '../../components/Faq.astro';
+import KpssBHesaplayici from '../../components/KpssBHesaplayici.astro';
+import { sonGuncelleme } from '../../data/sinav';
+
+const sss: FaqItem[] = [
+  {
+    soru: 'KPSS P93 puanı nedir?',
+    cevap:
+      'P93, önlisans (2 yıllık meslek yüksekokulu) mezunlarının Genel Yetenek ve Genel Kültür sonuçlarıyla hesaplanan KPSS puan türüdür. Önlisans düzeyinde açılan memur kadrolarına yerleştirme bu puana göre yapılır.',
+  },
+  {
+    soru: 'Önlisans KPSS puanında GY ve GK ağırlığı nasıldır?',
+    cevap:
+      'P93’te Genel Yetenek ve Genel Kültür netleri kendi katsayılarıyla puana eklenir. Önlisans türünde iki testin ağırlığı birbirine görece yakındır; dolayısıyla dengeli bir GY-GK neti puanı istikrarlı biçimde yükseltir.',
+  },
+  {
+    soru: 'Önlisans adayı da her testte 60 soru mu cevaplar?',
+    cevap:
+      'Evet. Önlisans oturumunda da Genel Yetenek ve Genel Kültür testlerinin her biri 60 sorudur. Net = doğru − (yanlış ⁄ 4) formülüyle bulunur; 4 yanlış 1 doğruyu götürür.',
+  },
+  {
+    soru: 'Hesaplanan önlisans puanı neden tahmini?',
+    cevap:
+      'Katsayılar geçmiş yıl KPSS önlisans istatistiklerinden kalibre edilmiştir. Gerçek P93 puanı; soru zorluğu, o yılın aday ortalaması ve ÖSYM’nin resmi standartlaştırma yöntemine göre değişir. Kesin puan yalnızca ÖSYM sonuç belgesinde yer alır.',
+  },
+];
+---
+
+<BaseLayout
+  title="KPSS Önlisans Puan Hesaplama 2026 | P93 Tahmini"
+  description="Önlisans KPSS Genel Yetenek ve Genel Kültür doğru-yanlışlarınızı girin; netlerinizle tahmini KPSS P93 puanınızı 2026 için anında hesaplayın."
+>
+  <CalculatorShell
+    baslik="KPSS Önlisans Puan Hesaplama"
+    ozet="Genel Yetenek ve Genel Kültür doğru-yanlış sayınızı girin; netlerinizi ve tahmini KPSS P93 (Önlisans) puanınızı anında görün."
+    guncellemeGoster={true}
+    guncellemeTarihi={sonGuncelleme}
+  >
+    <KpssBHesaplayici tur="P93" />
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>

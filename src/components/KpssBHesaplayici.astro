@@ -1,0 +1,340 @@
+---
+// KPSS B Grubu (GY + GK) ortak hesaplayıcı gövdesi — üç sayfa (P3/P93/P94)
+// aynı deseni paylaşır; yalnızca "tur" değişir. Hesap mantığı src/lib/sinav.ts
+// kpssBPuanHesapla'dan gelir; burada yalnızca çağrılır (mantığa dokunulmaz).
+import Disclaimer from './Disclaimer.astro';
+import { kpssBKatsayilar, kpssBSoruSayisi, type KpssBTur } from '../data/sinav';
+
+interface Props {
+  /** Sabit puan türü: P3 (Lisans), P93 (Önlisans), P94 (Ortaöğretim) */
+  tur: KpssBTur;
+}
+const { tur } = Astro.props;
+const turAd = kpssBKatsayilar[tur].ad;
+const turEtiket = `KPSS ${tur} (${turAd})`;
+
+// Bu sayfa dışındaki KPSS puan hesaplayıcıları — çapraz bağlantı bloğu.
+const kpssSayfalar = [
+  { slug: 'kpss-lisans-puan',      etiket: 'KPSS Lisans (P3)',      anahtar: 'P3' },
+  { slug: 'kpss-onlisans-puan',    etiket: 'KPSS Önlisans (P93)',   anahtar: 'P93' },
+  { slug: 'kpss-ortaogretim-puan', etiket: 'KPSS Ortaöğretim (P94)', anahtar: 'P94' },
+  { slug: 'kpss-dhbt-puan',        etiket: 'KPSS DHBT',             anahtar: 'DHBT' },
+];
+const digerSayfalar = kpssSayfalar.filter((s) => s.anahtar !== tur);
+
+const testSatirlari = [
+  { anahtar: 'gy', ad: 'Genel Yetenek', max: kpssBSoruSayisi },
+  { anahtar: 'gk', ad: 'Genel Kültür',  max: kpssBSoruSayisi },
+] as const;
+---
+
+<div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+  <!-- Giriş -->
+  <form id="kpssb-form" class="surface h-fit p-6 sm:p-7" novalidate data-tur={tur} data-turad={turAd}>
+    <h2 class="text-xl tracking-tight">Bilgileri girin</h2>
+
+    <div class="mt-6 space-y-6">
+      <!-- Test girişleri -->
+      <div>
+        <div class="flex items-center justify-between text-xs text-muted">
+          <span>Test</span>
+          <span class="flex gap-6 pr-1"><span class="w-16 text-center">Doğru</span><span class="w-16 text-center">Yanlış</span></span>
+        </div>
+        <div class="mt-2 space-y-2.5">
+          {testSatirlari.map((t) => (
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-ink-600/70 bg-ink-900/40 px-3.5 py-2.5">
+              <div class="min-w-0">
+                <span class="block truncate text-sm text-cream">{t.ad}</span>
+                <span class="text-[11px] text-muted">{t.max} soru</span>
+              </div>
+              <div class="flex flex-none gap-3">
+                <label class="sr-only" for={`${t.anahtar}Dogru`}>{t.ad} doğru sayısı</label>
+                <input
+                  id={`${t.anahtar}Dogru`}
+                  name={`${t.anahtar}Dogru`}
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max={t.max}
+                  step="1"
+                  placeholder="0"
+                  class="w-16 rounded-lg border border-ink-600 bg-ink-900/60 px-2.5 py-2 text-center text-cream focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+                />
+                <label class="sr-only" for={`${t.anahtar}Yanlis`}>{t.ad} yanlış sayısı</label>
+                <input
+                  id={`${t.anahtar}Yanlis`}
+                  name={`${t.anahtar}Yanlis`}
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max={t.max}
+                  step="1"
+                  placeholder="0"
+                  class="w-16 rounded-lg border border-ink-600 bg-ink-900/60 px-2.5 py-2 text-center text-cream focus:border-gold-500/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500/60 placeholder:text-muted/60"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="mt-2 text-xs text-muted">
+          Boş bıraktığınız alan 0 sayılır. Doğru + yanlış, o testin {kpssBSoruSayisi} sorusunu aşamaz.
+        </p>
+      </div>
+
+      <button type="submit" class="btn-gold w-full">Hesapla</button>
+      <p id="kpssb-hata" class="hidden text-sm text-red-300" role="alert"></p>
+    </div>
+  </form>
+
+  <!-- Sonuç -->
+  <div class="space-y-6">
+    <div
+      id="sonuc-panel"
+      class="surface relative overflow-hidden p-6 opacity-60 transition sm:p-8"
+      aria-hidden="true"
+    >
+      <p id="eyebrow" class="eyebrow">Tahmini {turEtiket} puanı</p>
+      <p id="puan-wrap" class="mt-3 font-serif text-5xl tracking-tightest text-cream sm:text-6xl">
+        <span id="sonuc-puan" aria-hidden="true">—</span>
+      </p>
+
+      <!-- Geçersiz girişte gösterilecek durum mesajı -->
+      <p id="durum" class="hidden" aria-live="polite"></p>
+
+      <!-- "Tahmini" çerçevesi — belirgin, gizlenmez -->
+      <p id="tahmini-not" class="mt-4 flex items-start gap-2 rounded-lg border border-gold-500/25 bg-gold-500/[0.06] px-3.5 py-2.5 text-xs leading-relaxed text-mist">
+        <svg class="mt-0.5 h-4 w-4 flex-none text-gold-500/90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 8h.01M11 12h1v4h1" />
+        </svg>
+        <span>Bu puan geçmiş sınav istatistiklerine dayalı bir <strong class="font-semibold text-cream">tahmindir</strong>. Kesin sonuç yalnızca ÖSYM tarafından açıklanır.</span>
+      </p>
+
+      <!-- Net dökümü -->
+      <dl id="dokum" class="mt-7 hidden space-y-3 text-sm">
+        <div class="flex items-center justify-between">
+          <dt class="text-muted">Genel Yetenek neti</dt>
+          <dd id="net-gy" class="font-medium text-mist">—</dd>
+        </div>
+        <div class="flex items-center justify-between">
+          <dt class="text-muted">Genel Kültür neti</dt>
+          <dd id="net-gk" class="font-medium text-mist">—</dd>
+        </div>
+        <div class="hairline !border-ink-600/70 pt-3 flex items-center justify-between">
+          <dt class="text-cream">Tahmini puan</dt>
+          <dd id="d-puan" class="font-semibold text-gold-300">—</dd>
+        </div>
+      </dl>
+
+      <button id="kopyala" type="button" class="btn-ghost mt-8 hidden">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+          <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+        </svg>
+        <span id="kopyala-metin">Sonucu kopyala</span>
+      </button>
+    </div>
+
+    <!-- Ekran okuyucu için nihai sonucu bir kez duyur -->
+    <p id="sr-sonuc" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- Nasıl hesaplandı -->
+    <div class="surface p-6">
+      <h2 class="text-lg tracking-tight text-cream">Nasıl hesaplanıyor?</h2>
+      <p class="mt-3 text-sm leading-relaxed text-mist">
+        Genel Yetenek ve Genel Kültür netleriniz (4 yanlış 1 doğruyu götürür)
+        kendi ağırlıklarıyla çarpılıp bir taban puana eklenir:
+      </p>
+      <p class="mt-3 rounded-lg border border-ink-600/60 bg-ink-900/50 px-4 py-3 text-sm text-cream">
+        Net = Doğru − (Yanlış ⁄ 4) &nbsp;·&nbsp; Puan = Taban + (GY ve GK ağırlıklı netleri)
+      </p>
+      <p class="mt-3 text-xs leading-relaxed text-muted">
+        {turEtiket} için katsayılar geçmiş yıl KPSS istatistiklerinden kalibre
+        edilmiştir; sonuç tahminidir.
+      </p>
+    </div>
+
+    <Disclaimer metin="Bu araç yalnızca bilgilendirme amaçlı bir tahmindir; resmi/hukuki değildir. Kesin puanınız yalnızca ÖSYM tarafından açıklanır." />
+
+    <!-- Diğer KPSS puan hesaplayıcıları -->
+    <div class="surface p-5">
+      <p class="text-xs uppercase tracking-wider text-muted">Diğer KPSS puan hesaplayıcıları</p>
+      <div class="mt-3 space-y-2">
+        {digerSayfalar.map((s) => (
+          <a href={`/sinav/${s.slug}`} class="flex items-center justify-between gap-4 rounded-lg border border-ink-600/60 bg-ink-900/40 px-4 py-2.5 text-sm text-mist transition hover:border-gold-500/40 hover:text-cream">
+            <span>{s.etiket}</span>
+            <svg class="h-4 w-4 flex-none text-gold-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { kpssBPuanHesapla, type KpssBGirdi } from '../lib/sinav';
+  import type { KpssBTur } from '../data/sinav';
+
+  function initKpssB() {
+    const form = document.getElementById('kpssb-form') as HTMLFormElement | null;
+    if (!form) return;
+    const $ = (id: string) => document.getElementById(id)!;
+    const panel = $('sonuc-panel');
+    const puanEl = $('sonuc-puan');
+    const puanWrap = $('puan-wrap');
+    const eyebrow = $('eyebrow');
+    const durum = $('durum');
+    const tahminiNot = $('tahmini-not');
+    const dokum = $('dokum');
+    const netGy = $('net-gy');
+    const netGk = $('net-gk');
+    const dPuan = $('d-puan');
+    const srSonuc = $('sr-sonuc');
+    const kopyala = $('kopyala') as HTMLButtonElement;
+    const kopyalaMetin = $('kopyala-metin');
+    const hata = $('kpssb-hata');
+
+    const tur = (form.dataset.tur ?? 'P3') as KpssBTur;
+    const turAd = form.dataset.turad ?? '';
+    const turEtiket = `KPSS ${tur} (${turAd})`;
+
+    const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let kopyalaMetni = '';
+
+    const fmtPuan = (n: number) =>
+      n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtNet = (n: number) =>
+      n.toLocaleString('tr-TR', { maximumFractionDigits: 2 });
+
+    // Bir alanı sayıya çevir: boş → 0. NaN/negatif ise null (geçersiz).
+    function alan(name: string): number | null {
+      const ham = (form.elements.namedItem(name) as HTMLInputElement)?.value ?? '';
+      if (ham.trim() === '') return 0;
+      const v = Number(ham);
+      if (!Number.isFinite(v) || v < 0) return null;
+      return v;
+    }
+
+    function countUp(el: HTMLElement, hedef: number) {
+      if (azHareket) {
+        el.textContent = fmtPuan(hedef);
+        return;
+      }
+      const sure = 1100;
+      const t0 = performance.now();
+      function tick(now: number) {
+        const p = Math.min(1, (now - t0) / sure);
+        // easeOutExpo — premium, yumuşak yavaşlayarak biten eğri.
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+        el.textContent = fmtPuan(hedef * eased);
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = fmtPuan(hedef);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // Geçersiz/eksik girişte önceki başarılı sonucu panelde bırakma.
+    function sifirla() {
+      panel.classList.add('opacity-60');
+      panel.setAttribute('aria-hidden', 'true');
+      eyebrow.classList.add('hidden');
+      puanWrap.classList.add('hidden');
+      puanEl.textContent = '—';
+      tahminiNot.classList.add('hidden');
+      dokum.classList.add('hidden');
+      durum.classList.add('hidden');
+      kopyala.classList.add('hidden');
+    }
+
+    // Geçersiz girişte: paneli temizle (sifirla) ve tek bir uyarı göster.
+    function sadeceDurum(mesaj: string) {
+      sifirla();
+      panel.classList.remove('opacity-60');
+      panel.removeAttribute('aria-hidden');
+      durum.className = 'badge-warn';
+      durum.textContent = mesaj;
+      durum.classList.remove('hidden');
+      srSonuc.textContent = mesaj;
+    }
+
+    const testler = [
+      { d: 'gyDogru', y: 'gyYanlis', ad: 'Genel Yetenek' },
+      { d: 'gkDogru', y: 'gkYanlis', ad: 'Genel Kültür' },
+    ] as const;
+    const MAX = 60;
+
+    function hesapla(animasyon: boolean) {
+      hata.classList.add('hidden');
+
+      const girdi: Partial<KpssBGirdi> = { tur };
+      for (const t of testler) {
+        const dogru = alan(t.d);
+        const yanlis = alan(t.y);
+        if (dogru === null || yanlis === null) {
+          sadeceDurum(`${t.ad}: doğru ve yanlış sayısı 0 veya daha büyük olmalıdır.`);
+          return;
+        }
+        if (dogru + yanlis > MAX) {
+          sadeceDurum(`${t.ad}: doğru + yanlış toplamı ${MAX} soruyu aşamaz.`);
+          return;
+        }
+        (girdi as Record<string, number | KpssBTur>)[t.d] = dogru;
+        (girdi as Record<string, number | KpssBTur>)[t.y] = yanlis;
+      }
+
+      let sonuc;
+      try {
+        sonuc = kpssBPuanHesapla(girdi as KpssBGirdi);
+      } catch (e) {
+        sadeceDurum(e instanceof Error ? e.message : 'Girdiğiniz değerler geçersiz.');
+        return;
+      }
+
+      // Başarılı sonuç — paneli göster.
+      panel.classList.remove('opacity-60');
+      panel.removeAttribute('aria-hidden');
+      eyebrow.classList.remove('hidden');
+      puanWrap.classList.remove('hidden');
+      tahminiNot.classList.remove('hidden');
+      dokum.classList.remove('hidden');
+      durum.classList.add('hidden');
+      kopyala.classList.remove('hidden');
+
+      if (animasyon) countUp(puanEl, sonuc.puan);
+      else puanEl.textContent = fmtPuan(sonuc.puan);
+
+      netGy.textContent = fmtNet(sonuc.netler.GY);
+      netGk.textContent = fmtNet(sonuc.netler.GK);
+      dPuan.textContent = fmtPuan(sonuc.puan);
+
+      srSonuc.textContent = `Tahmini ${turEtiket} puanı: ${fmtPuan(sonuc.puan)}.`;
+
+      kopyalaMetni =
+        `${turEtiket} Puan Hesabı (tahmini)\n` +
+        `Genel Yetenek neti: ${fmtNet(sonuc.netler.GY)}\n` +
+        `Genel Kültür neti: ${fmtNet(sonuc.netler.GK)}\n` +
+        `Tahmini puan: ${fmtPuan(sonuc.puan)}`;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      hesapla(true);
+    });
+
+    kopyala.addEventListener('click', async () => {
+      if (!kopyalaMetni) return;
+      try {
+        await navigator.clipboard.writeText(kopyalaMetni);
+        kopyalaMetin.textContent = 'Kopyalandı ✓';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      } catch {
+        kopyalaMetin.textContent = 'Kopyalanamadı';
+        setTimeout(() => (kopyalaMetin.textContent = 'Sonucu kopyala'), 1800);
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', initKpssB);
+</script>

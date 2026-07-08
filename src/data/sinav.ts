@@ -29,5 +29,16 @@ export const duzeyler: Record<DhbtDuzey, string> = {
   P122: 'Ortaöğretim',
 };
 
+// KPSS B Grubu (sadece GY + GK). Kaynak: 2024-KPSS istatistiklerinden kalibre. Tahmini.
+export const kpssBKatsayilar = {
+  P3:  { ad: 'Lisans',      C: 50.718007, r_GY: 0.486412, r_GK: 0.413711 },
+  P93: { ad: 'Önlisans',    C: 53.976737, r_GY: 0.436278, r_GK: 0.401217 },
+  P94: { ad: 'Ortaöğretim', C: 54.775523, r_GY: 0.316150, r_GK: 0.477235 },
+};
+export type KpssBTur = 'P3' | 'P93' | 'P94';
+
+// KPSS B'de Genel Yetenek ve Genel Kültür testlerinin her biri 60 sorudur.
+export const kpssBSoruSayisi = 60;
+
 export const sonGuncelleme = '2024-10-16';
 export const kaynak = 'ÖSYM 2024-KPSS DHBT';

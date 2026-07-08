@@ -3,7 +3,15 @@
 //
 // Not: Tahmini hesaplamadır; kesin sonuç yalnızca ÖSYM tarafından açıklanır.
 
-import { dhbtKatsayilar, dhbtTestler, duzeyler, type DhbtDuzey } from '../data/sinav';
+import {
+  dhbtKatsayilar,
+  dhbtTestler,
+  duzeyler,
+  kpssBKatsayilar,
+  kpssBSoruSayisi,
+  type DhbtDuzey,
+  type KpssBTur,
+} from '../data/sinav';
 
 /** Net = doğru − yanlış/4 (DHBT'de 4 yanlış 1 doğruyu götürür) */
 export function hesaplaNet(dogru: number, yanlis: number): number {
@@ -76,5 +84,49 @@ export function dhbtPuanHesapla(girdi: DhbtGirdi): DhbtSonuc {
     puan,
     duzey: girdi.duzey,
     duzeyAdi: duzeyler[girdi.duzey],
+  };
+}
+
+// ---- KPSS B Grubu (sadece Genel Yetenek + Genel Kültür) ----
+
+export interface KpssBGirdi {
+  gyDogru: number;
+  gyYanlis: number;
+  gkDogru: number;
+  gkYanlis: number;
+  tur: KpssBTur;
+}
+
+export interface KpssBSonuc {
+  /** GY ve GK netleri (0..60 aralığına kırpılmış) */
+  netler: { GY: number; GK: number };
+  /** Ham (kırpılmamış) puan */
+  ham: number;
+  /** 0–100 aralığına kırpılmış, 2 ondalık puan */
+  puan: number;
+  /** Uygulanan puan türü kodu (P3/P93/P94) */
+  tur: KpssBTur;
+  /** Türün okunur adı (Lisans/Önlisans/Ortaöğretim) */
+  turAdi: string;
+}
+
+/**
+ * KPSS B Grubu puanını hesaplar (yalnızca GY + GK).
+ * puan = C[tur] + r_GY·GY + r_GK·GK (0–100'e kırpılır, 2 ondalık)
+ */
+export function kpssBPuanHesapla(girdi: KpssBGirdi): KpssBSonuc {
+  const gy = testNet(girdi.gyDogru, girdi.gyYanlis, kpssBSoruSayisi, 'Genel Yetenek');
+  const gk = testNet(girdi.gkDogru, girdi.gkYanlis, kpssBSoruSayisi, 'Genel Kültür');
+
+  const k = kpssBKatsayilar[girdi.tur];
+  const ham = k.C + k.r_GY * gy + k.r_GK * gk;
+  const puan = Math.round(Math.max(0, Math.min(100, ham)) * 100) / 100;
+
+  return {
+    netler: { GY: gy, GK: gk },
+    ham,
+    puan,
+    tur: girdi.tur,
+    turAdi: k.ad,
   };
 }

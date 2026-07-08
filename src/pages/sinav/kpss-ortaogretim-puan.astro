@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorShell from '../../components/CalculatorShell.astro';
+import Faq from '../../components/Faq.astro';
+import type { FaqItem } from '../../components/Faq.astro';
+import KpssBHesaplayici from '../../components/KpssBHesaplayici.astro';
+import { sonGuncelleme } from '../../data/sinav';
+
+const sss: FaqItem[] = [
+  {
+    soru: 'KPSS P94 puanı nedir?',
+    cevap:
+      'P94, ortaöğretim (lise) mezunlarının KPSS Genel Yetenek ve Genel Kültür sonuçlarıyla hesaplanan puan türüdür. Lise düzeyinde açılan memur ve işçi kadrolarına yerleştirmede kullanılan taban puandır.',
+  },
+  {
+    soru: 'Ortaöğretim KPSS puanında GY ve GK ağırlığı nasıldır?',
+    cevap:
+      'P94’te Genel Yetenek ve Genel Kültür netleri kendi katsayılarıyla puana yansır. Ortaöğretim türünde Genel Kültür neti puana görece daha güçlü etki eder; bu nedenle GK netini yükseltmek lise puanına belirgin katkı sağlar.',
+  },
+  {
+    soru: 'Lise mezunu için yanlışlar puanı nasıl etkiler?',
+    cevap:
+      'KPSS ortaöğretim oturumunda da 4 yanlış 1 doğruyu götürür: net = doğru − (yanlış ⁄ 4). Her iki test 60 sorudur; emin olunmayan sorularda gereksiz işaretleme netinizi ve P94 puanınızı düşürür.',
+  },
+  {
+    soru: 'Hesaplanan ortaöğretim puanı neden tahmini?',
+    cevap:
+      'Katsayılar geçmiş yıl KPSS ortaöğretim istatistiklerinden kalibre edilmiştir. Gerçek P94 puanı; sınavın zorluğu, o yılın lise adayı ortalaması ve ÖSYM’nin resmi hesap yöntemine göre değişir. Kesin puanı yalnızca ÖSYM açıklar.',
+  },
+];
+---
+
+<BaseLayout
+  title="KPSS Ortaöğretim Puan Hesaplama 2026 | P94"
+  description="Ortaöğretim (lise) KPSS Genel Yetenek ve Genel Kültür doğru-yanlışlarınızı girin; netlerinizle tahmini KPSS P94 puanınızı 2026 için anında hesaplayın."
+>
+  <CalculatorShell
+    baslik="KPSS Ortaöğretim Puan Hesaplama"
+    ozet="Genel Yetenek ve Genel Kültür doğru-yanlış sayınızı girin; netlerinizi ve tahmini KPSS P94 (Ortaöğretim) puanınızı anında görün."
+    guncellemeGoster={true}
+    guncellemeTarihi={sonGuncelleme}
+  >
+    <KpssBHesaplayici tur="P94" />
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>

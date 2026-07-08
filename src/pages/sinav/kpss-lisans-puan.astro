@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CalculatorShell from '../../components/CalculatorShell.astro';
+import Faq from '../../components/Faq.astro';
+import type { FaqItem } from '../../components/Faq.astro';
+import KpssBHesaplayici from '../../components/KpssBHesaplayici.astro';
+import { sonGuncelleme } from '../../data/sinav';
+
+const sss: FaqItem[] = [
+  {
+    soru: 'KPSS P3 puanı nedir?',
+    cevap:
+      'P3, lisans (4 yıllık fakülte) mezunlarının KPSS Genel Yetenek ve Genel Kültür testlerinden aldığı sonuçlarla hesaplanan puan türüdür. Lisans düzeyindeki A grubu dışı memur kadrolarına yerleştirmede en yaygın kullanılan taban puandır.',
+  },
+  {
+    soru: 'Lisans KPSS puanında GY ve GK ağırlığı nasıldır?',
+    cevap:
+      'P3 puanında Genel Yetenek ve Genel Kültür netleri ayrı katsayılarla puana yansır. Lisans türünde Genel Yetenek neti, Genel Kültür netine göre puana biraz daha güçlü etki eder; bu yüzden GY netini artırmak puanı görece hızlı yükseltir.',
+  },
+  {
+    soru: 'Yanlışlar lisans puanını düşürür mü?',
+    cevap:
+      'Evet. KPSS’de 4 yanlış 1 doğruyu götürür: net = doğru − (yanlış ⁄ 4). Emin olmadığınız sorularda rastgele işaretleme netinizi ve dolayısıyla P3 puanınızı düşürebilir.',
+  },
+  {
+    soru: 'Hesaplanan lisans puanı neden tahmini?',
+    cevap:
+      'Kullanılan katsayılar geçmiş yıl KPSS lisans istatistiklerinden kalibre edilmiştir. Gerçek P3 puanı; sınavın zorluğuna, o yılın ortalama ve standart sapmasına ve ÖSYM’nin resmi formülüne göre değişir. Bu araç yalnızca yön gösterir.',
+  },
+];
+---
+
+<BaseLayout
+  title="KPSS Lisans Puan Hesaplama 2026 | P3 Tahmini"
+  description="Lisans KPSS Genel Yetenek ve Genel Kültür doğru-yanlışlarınızı girin; netlerinizle tahmini KPSS P3 puanınızı 2026 için anında hesaplayın."
+>
+  <CalculatorShell
+    baslik="KPSS Lisans Puan Hesaplama"
+    ozet="Genel Yetenek ve Genel Kültür doğru-yanlış sayınızı girin; netlerinizi ve tahmini KPSS P3 (Lisans) puanınızı anında görün."
+    guncellemeGoster={true}
+    guncellemeTarihi={sonGuncelleme}
+  >
+    <KpssBHesaplayici tur="P3" />
+    <Faq items={sss} />
+  </CalculatorShell>
+</BaseLayout>
