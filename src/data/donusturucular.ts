@@ -1,5 +1,5 @@
 // Birim dönüştürücülerin merkezi tanımları (içerik koddan ayrı).
-// Tek bir dinamik sayfa (src/pages/[cevirici].astro) bu listeden 6 ayrı
+// Tek bir dinamik sayfa (src/pages/[cevirici].astro) bu listeden 7 ayrı
 // statik sayfa üretir. Yeni dönüştürücü = buraya bir kayıt eklemek.
 
 import type { CeviriTipi } from '../lib/birim-cevirici';
@@ -136,6 +136,37 @@ export const donusturucular: Donusturucu[] = [
       {
         soru: 'Km’yi mile nasıl çeviririm?',
         cevap: 'Kilometre değerini 1,609344’e bölün; sonuç mil cinsindendir.',
+      },
+    ],
+  },
+  {
+    slug: 'yarda-metre-cevirme',
+    tip: 'dogrusal',
+    faktor: 0.9144, // 1 yarda = 0.9144 m (kesin tanım)
+    birimA: { ad: 'yarda', kisa: 'yd' },
+    birimB: { ad: 'metre', kisa: 'm' },
+    icon: 'uzunluk',
+    title: 'Yarda Metre Çevirme — Yarda (yd) Online Dönüştürücü',
+    description:
+      'Yardayı metreye, metreyi yardaya anında çevirin. Çift yönlü, ücretsiz yarda–metre dönüştürücü; sık kullanılan değerler tablosu ve formülüyle.',
+    h1: 'Yarda – Metre Çevirme',
+    ozet:
+      'Bir değeri girin; yarda ve metre karşılığını anında, çift yönlü görün. 1 yarda = 0,9144 m temel alınır.',
+    kartBaslik: 'Yarda – Metre Çevirme',
+    kartAciklama: 'Yarda (yd) ve metre arasında anında, çift yönlü dönüşüm.',
+    sikDegerler: [1, 2, 5, 10, 20, 50, 100, 200],
+    sss: [
+      {
+        soru: '1 yarda kaç metredir?',
+        cevap: '1 yarda tam olarak 0,9144 metredir. Tersten, 1 metre yaklaşık 1,0936 yardaya eşittir.',
+      },
+      {
+        soru: 'Yardayı metreye nasıl çeviririm?',
+        cevap: 'Yarda değerini 0,9144 ile çarpın; sonuç metre cinsindendir. Metreden yardaya çevirmek için metre değerini 0,9144’e bölün.',
+      },
+      {
+        soru: 'Yarda nerede kullanılır?',
+        cevap: 'Yarda; ABD ve İngiltere’de günlük ölçülerde, Amerikan futbolu ve golf gibi sporlarda yaygın kullanılır. 1 yarda 3 fite ya da 36 inçe eşittir.',
       },
     ],
   },
