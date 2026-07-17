@@ -3,29 +3,35 @@ const path = Astro.url.pathname;
 const isHome = path === '/' || path === '';
 ---
 
-<header class="sticky top-0 z-40 border-b border-ink-600/40 bg-ink-950/70 backdrop-blur-md">
+<!-- Marka laciverti header (skill.md: ana renk yapısal öğelerde) — düz dolgu, blur yok -->
+<header class="sticky top-0 z-40 bg-lacivert shadow-soft">
   <div class="container-x flex h-16 items-center justify-between">
-    <a href="/" class="group flex min-h-[44px] items-center gap-2.5">
-      <span class="grid h-8 w-8 place-items-center rounded-lg border border-gold-500/40 bg-gold-500/10 text-gold-500 transition group-hover:bg-gold-500/20">
+    <a href="/" class="group flex min-h-[44px] items-center gap-2">
+      <span class="grid h-8 w-8 place-items-center rounded-lg bg-gold-500 text-lacivert-koyu transition group-hover:bg-gold-400">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="4" y="3" width="16" height="18" rx="2" />
           <path d="M8 7h8M8 11h2m4 0h2M8 15h2m4 0h2" />
         </svg>
       </span>
-      <span class="font-serif text-lg tracking-tight text-cream">Hesap<span class="text-gold-500">Atölyesi</span></span>
+      <span class="font-serif text-lg tracking-tight text-white">Hesap<span class="text-gold-400">Atölyesi</span></span>
     </a>
 
-    <nav class="flex items-center gap-1 text-sm">
+    <nav class="flex items-center gap-2 text-sm">
       <a
         href="/"
         class:list={[
-          'inline-flex min-h-[44px] items-center rounded-full px-3 transition hover:text-cream',
-          isHome ? 'text-cream' : 'text-muted',
+          'inline-flex min-h-[44px] items-center rounded-lg px-3 transition hover:text-white',
+          isHome ? 'text-white' : 'text-white/70',
         ]}
       >
         Araçlar
       </a>
-      <a href="/kira-artisi" class="btn-ghost ml-1 hidden sm:inline-flex">Kira Hesapla</a>
+      <a
+        href="/kira-artisi"
+        class="hidden min-h-[44px] items-center rounded-lg border border-white/25 px-4 text-sm font-medium text-white transition hover:border-gold-400 hover:text-gold-400 sm:inline-flex"
+      >
+        Kira Hesapla
+      </a>
     </nav>
   </div>
 </header>

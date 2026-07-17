@@ -5,8 +5,10 @@ interface Props {
   calc: Calculator;
   /** Kart sırası — scroll-reveal stagger gecikmesi için (opsiyonel) */
   index?: number;
+  /** Öne çıkan (büyük) kart — kırık simetri için gridde geniş hücreye yayılır */
+  featured?: boolean;
 }
-const { calc, index = 0 } = Astro.props;
+const { calc, index = 0, featured = false } = Astro.props;
 const aktif = calc.status === 'aktif';
 const Tag = aktif ? 'a' : 'div';
 // Dönüştürücüler için "Çevir", hesaplayıcılar için "Hesapla".
@@ -18,37 +20,41 @@ const eylem = calc.category === 'donusturucu' ? 'Çevir' : 'Hesapla';
   data-reveal
   data-reveal-delay={(index % 3) * 90}
   class:list={[
-    'group surface relative flex flex-col p-6 transition duration-300',
+    'group surface relative flex flex-col transition duration-300',
+    featured ? 'p-8 sm:col-span-2' : 'p-6',
     aktif
-      ? 'hover:-translate-y-1 hover:border-gold-500/40 hover:shadow-glow'
-      : 'cursor-default opacity-60',
+      ? 'hover:-translate-y-1 hover:border-gold-500/60 hover:shadow-glow'
+      : 'cursor-default opacity-70 shadow-none',
   ]}
   role={!aktif ? 'link' : undefined}
   aria-disabled={!aktif ? 'true' : undefined}
   aria-label={!aktif ? `${calc.title} — yakında, henüz kullanılamıyor` : undefined}
 >
   {!aktif && (
-    <span class="absolute right-5 top-5 rounded-full border border-ink-600 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted">
+    <span class="absolute right-6 top-6 rounded-full border border-ink-600 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted">
       Yakında
     </span>
   )}
 
   <span
     class:list={[
-      'grid h-12 w-12 place-items-center rounded-xl border transition',
+      'grid place-items-center rounded-lg border transition',
+      featured ? 'h-14 w-14' : 'h-12 w-12',
       aktif
-        ? 'border-gold-500/30 bg-gold-500/10 text-gold-500 group-hover:bg-gold-500/20'
-        : 'border-ink-600 bg-ink-700/50 text-muted',
+        ? 'border-lacivert/15 bg-lacivert/5 text-lacivert group-hover:border-gold-500/60 group-hover:bg-gold-500/10 group-hover:text-gold-300'
+        : 'border-ink-600 bg-ink-700/60 text-muted',
     ]}
   >
-    <CalcIcon name={calc.icon} />
+    <CalcIcon name={calc.icon} class={featured ? 'h-7 w-7' : 'h-6 w-6'} />
   </span>
 
-  <h3 class="mt-5 text-xl tracking-tight">{calc.title}</h3>
-  <p class="mt-2 flex-1 text-sm leading-relaxed text-mist">{calc.description}</p>
+  <h3 class:list={['mt-4 tracking-tight', featured ? 'text-2xl' : 'text-xl']}>{calc.title}</h3>
+  <p class:list={['mt-2 flex-1 leading-relaxed text-muted', featured ? 'max-w-md text-base' : 'text-sm']}>
+    {calc.description}
+  </p>
 
   {aktif && (
-    <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-gold-500">
+    <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-300">
       {eylem}
       <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M5 12h14M13 6l6 6-6 6" />

@@ -41,7 +41,7 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
 
     /* Hareket sistemi — tutarlı geçiş süreleri ve easing eğrileri. */
     --dur-fast: 150ms;
@@ -57,20 +57,10 @@
   }
 
   body {
-    @apply bg-ink-950 text-mist font-sans antialiased;
-    /* Derinlikli zemin: koyu lacivertte hafif ışık huzmeleri */
-    background-image:
-      radial-gradient(60rem 40rem at 80% -10%, rgba(217, 183, 121, 0.06), transparent 60%),
-      radial-gradient(50rem 50rem at -10% 10%, rgba(40, 49, 80, 0.35), transparent 55%);
+    @apply bg-paper text-mist font-sans antialiased;
+    /* Rakamlar tabular (Inter "tnum") — hesap sonuçları alt alta hizalı görünür. */
+    font-feature-settings: 'tnum' 1;
     text-rendering: optimizeLegibility;
-  }
-
-  /* Sabit (parallax) zemin yalnızca hassas işaretçili (masaüstü) cihazlarda.
-     Dokunmatik/mobilde "fixed" scroll jank'i yarattığından uygulanmaz. */
-  @media (hover: hover) and (pointer: fine) {
-    body {
-      background-attachment: fixed;
-    }
   }
 
   h1, h2, h3 {
@@ -78,13 +68,13 @@
   }
 
   ::selection {
-    background: rgba(217, 183, 121, 0.25);
-    color: #fff;
+    background: rgba(232, 162, 61, 0.3);
+    color: #14203a;
   }
 
-  /* Odak görünürlüğü (erişilebilirlik) */
+  /* Odak görünürlüğü (erişilebilirlik) — koyu amber, açık zeminde de seçilir */
   :focus-visible {
-    outline: 2px solid theme('colors.gold.500');
+    outline: 2px solid theme('colors.gold.600');
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -108,45 +98,49 @@
     @apply mx-auto w-full max-w-content px-5 sm:px-8;
   }
 
-  /* İnce ışıltılı ayraç */
+  /* İnce ayraç — lacivertten türetilmiş ton */
   .hairline {
     @apply border-t border-ink-600/60;
   }
 
-  /* Vurgu rengiyle ince üst çizgi (kart/şerit başlıkları) */
+  /* Şerit/kart üstü küçük etiket. Açık zeminde koyu amber (AA kontrast);
+     lacivert zeminde .eyebrow-inverse kullanılır. */
   .eyebrow {
-    @apply text-xs font-medium uppercase tracking-[0.22em] text-gold-500;
+    @apply text-xs font-medium uppercase tracking-[0.22em] text-gold-300;
+  }
+  .eyebrow-inverse {
+    @apply text-xs font-medium uppercase tracking-[0.22em] text-gold-400;
   }
 
-  /* Birincil buton — şampanya altını */
+  /* Birincil buton — amber vurgu, lacivert metin. min-h 48px: dokunmatik dostu. */
   .btn-gold {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold-500
-           px-6 py-3 text-sm font-semibold text-ink-950 transition
-           hover:bg-gold-300 focus-visible:outline-gold-300
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg
+           bg-gold-500 px-6 text-sm font-semibold text-lacivert-koyu transition
+           hover:bg-gold-600 focus-visible:outline-lacivert
            disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  /* İkincil/hayalet buton */
+  /* İkincil buton — lacivert çerçeve (açık zemin için) */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border
-           border-ink-600 px-5 py-3 text-sm font-medium text-mist transition
-           hover:border-gold-500/60 hover:text-cream;
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-lg
+           border border-lacivert/25 px-5 text-sm font-medium text-cream transition
+           hover:border-lacivert hover:bg-lacivert/5;
   }
 
   /* Uygulanan oran rozeti (kira sayfası "oran-bilgi"). Görsel kararlar
      burada merkezde; JS yalnızca .badge-gold / .badge-warn sınıfını seçer. */
   .badge-gold {
-    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-gold-500/30
+    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-gold-500/50
            bg-gold-500/10 px-3 py-2 text-sm text-gold-300;
   }
   .badge-warn {
-    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-warn-500/30
+    @apply mt-2.5 flex items-center gap-2 rounded-lg border border-warn-500/50
            bg-warn-500/10 px-3 py-2 text-sm text-warn-300;
   }
 
-  /* Kart yüzeyi */
+  /* Kart yüzeyi — beyaz, lacivert türevi kenarlık + yumuşak gölge (blur yok) */
   .surface {
-    @apply rounded-xl2 border border-ink-600/70 bg-ink-800/70 backdrop-blur-sm;
+    @apply rounded-xl2 border border-ink-600/60 bg-ink-800 shadow-soft;
   }
 }
 
@@ -162,7 +156,7 @@
 }
 .btn-gold:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 30px -12px rgba(217, 183, 121, 0.55);
+  box-shadow: 0 8px 20px -10px rgba(232, 162, 61, 0.55);
 }
 .btn-ghost:hover {
   transform: translateY(-1px);

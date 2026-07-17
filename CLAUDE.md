@@ -42,21 +42,25 @@ tazminatı, yıllık izin vb.).
 - Kira hesaplama **formülü kullanıcı tarafından sonra verilecek**; şimdilik
   hesap fonksiyonunda net bir yer tutucu (placeholder) bırakılır.
 
-## Tasarım Dili — Lüks & Premium
+## Tasarım Dili — Marka Kimliği (kaynak: kökteki `skill.md`, SABİT)
 
-- **Zemin:** saf siyah DEĞİL. **Koyu lacivert** — hafif mavi-mor derinlikli,
-  çok koyu antrasit-lacivert. Finansal/güven havası.
-- **Palet:** sade. Koyu zemin + **tek bir sıcak vurgu rengi: şampanya altını**
-  (açık, sıcak, yumuşak altın). Vurgu rengi ölçülü kullanılır; her yeri kaplamaz.
+- **Zemin:** nötr **krem** `#F7F4EE` (steril beyaz değil). Kartlar `#FFFFFF`.
+- **Ana renk:** **lacivert/ink** `#1B2A4A` — başlıklar, header, footer, sonuç
+  paneli. Koyu metin `#14203A`, ikincil metin `#5A6478`.
+- **Vurgu:** **amber** `#E8A23D` — SADECE sonuç kutusu, birincil CTA ve aktif
+  durum. Açık zeminde amber METİN için AA uyumlu koyu ton (`gold-300`) kullanılır.
+- **Kenarlık/gölge:** gri değil, lacivertten türetilir (örn. `rgba(27,42,74,0.10)`).
 - **Tipografi:**
-  - Başlıklar: **Fraunces** (zarif, çağdaş soft-serif; değişken font).
-  - Gövde: temiz bir **sans-serif** (örn. Inter).
-- **Düzen:** bol boşluk (whitespace), büyük zarif başlıklar, ince ayraçlar,
-  yumuşak gölgeler. Sıkışık değil, nefes alan tasarım.
-- **Animasyon:** ölçülü ve akıcı. Sonuç sayısı ekrana **artarak (count-up) ve
-  yumuşak geçişle** gelir. Abartılı/dikkat dağıtıcı hareket yok.
-- **Erişilebilirlik & hız:** mobil uyumlu, hızlı, `prefers-reduced-motion`
-  saygılı. Kontrast yeterli olmalı.
+  - Başlıklar: **Fraunces** (karakterli serif; değişken font).
+  - Gövde + rakamlar: **Inter**, `font-feature-settings: "tnum" 1` (tabular).
+- **Boşluk:** 8px tabanlı sistem — 8/16/24/32/48/64/96. Keyfi px kullanma.
+- **Düzen:** araç odaklı; grid kırık simetrili (öne çıkan kart büyük). Bol
+  boşluk, gerçek başlık hiyerarşisi.
+- **Animasyon:** ölçülü. Sonuç sayısı count-up ile gelir. Ağır kütüphane/3B yok.
+- **Yasak:** mor→mavi gradyan, emoji ikon, glassmorphism/blur kart, stok
+  görsel/3B render, uydurma istatistik. (Ayrıntı: `skill.md`.)
+- **Erişilebilirlik & hız:** mobil öncelikli, WCAG AA kontrast,
+  `prefers-reduced-motion` saygılı, PageSpeed düşürülmez.
 
 ## Kira Artışı Sayfası — Gerekli Bölümler
 
